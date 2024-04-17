@@ -1,4 +1,5 @@
 import pygame
+import random
 
 
 class Traffic:
@@ -24,5 +25,5 @@ class Traffic:
     def traffic_movement(self):
         self.move_direction("up")
         if self.y < -128:
-            self.y = 828
+            self.y = random.randint(828, 1000)
             self.delta += 0.1

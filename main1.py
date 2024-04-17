@@ -2,6 +2,7 @@ import pygame
 from car import Car
 from traffic import Traffic
 from traffic2 import Traffic2
+from traffic3 import Traffic3
 from background import Background
 from explosion import Explosion
 
@@ -24,6 +25,7 @@ display_message = my_font.render(message, True, (255, 255, 255))
 c = Car(535, 500)
 t = Traffic(430, 500)
 t2 = Traffic2(620, 0)
+t3 = Traffic3(525, 250)
 bg = Background(280, 0)
 ex = Explosion(-1000, 0)
 
@@ -45,9 +47,10 @@ while run:
     if not exploded:
         t.traffic_movement()
         t2.traffic_movement()
+        t3.traffic_movement()
 
     # Collisions
-    other_cars = [t, t2]
+    other_cars = [t, t2, t3]
     for car in other_cars:
         if pygame.Rect.colliderect(c.rect, car.rect):
             collided_car = car
@@ -70,6 +73,7 @@ while run:
     screen.blit(display_message, (0, 0))
     screen.blit(t.image, t.rect)
     screen.blit(t2.image, t2.rect)
+    screen.blit(t3.image, t3.rect)
     screen.blit(c.image, c.rect)
     if exploded:
         if c.y - collided_car.y < 0:
