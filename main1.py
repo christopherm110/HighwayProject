@@ -24,12 +24,13 @@ display_message = my_font.render(message, True, (255, 255, 255))
 
 c = Car(535, 500)
 t = Traffic(430, 500)
-t2 = Traffic2(620, 0)
-t3 = Traffic3(525, 250)
+t2 = Traffic2(620, -100)
+t3 = Traffic3(525, 0)
 bg = Background(280, 0)
 ex = Explosion(-1000, 0)
 
 exploded = False
+throttle = False
 collided_car = "none"
 
 run = True
@@ -38,9 +39,16 @@ while run:
 
     keys = pygame.key.get_pressed()
 
+    throttle = False
+    print(throttle)
+
     if keys[pygame.K_w] and not exploded:
+        throttle = True
+        c.y_vel = c.y_vel + 2
         c.move_direction("up")
     if keys[pygame.K_s] and not exploded:
+        throttle = True
+        c.y_vel = c.y_vel + 2
         c.move_direction("down")
 
     # Traffic Movement
