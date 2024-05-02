@@ -1,4 +1,5 @@
 import pygame
+import random
 from car import Car
 from traffic import Traffic
 from traffic2 import Traffic2
@@ -19,18 +20,19 @@ SCREEN_WIDTH = 1080
 size = (SCREEN_WIDTH, SCREEN_HEIGHT)
 screen = pygame.display.set_mode(size)
 
-message = "Test"
+message = "Points: 0"
 display_message = my_font.render(message, True, (255, 255, 255))
 
 c = Car(535, 500)
-t = Traffic(430, 500)
+t = Traffic(430, (random.randint(250, 500)))
 t2 = Traffic2(620, -100)
-t3 = Traffic3(525, 0)
+t3 = Traffic3(525, random.randint(0, 250))
 bg = Background(280, 0)
 ex = Explosion(-1000, 0)
 
 exploded = False
 throttle = False
+points = 0
 collided_car = "none"
 
 run = True
@@ -40,7 +42,6 @@ while run:
     keys = pygame.key.get_pressed()
 
     throttle = False
-    print(throttle)
 
     if keys[pygame.K_w] and not exploded:
         throttle = True

@@ -34,4 +34,8 @@ class Car:
         if direction == "right" and self.lane == "left":
             self.lane = "middle"
             self.x = 535
+        if self.y > 720:
+            self.y = -130
+        if self.y < -140:
+            self.y = 730
         self.rect = pygame.Rect(self.x, self.y, self.image_size[0], self.image_size[1])
