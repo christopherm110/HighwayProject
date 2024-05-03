@@ -31,7 +31,7 @@ bg = Background(280, 0)
 ex = Explosion(-1000, 0)
 
 exploded = False
-throttle = False
+collisions = 0
 points = 0
 collided_car = "none"
 
@@ -41,14 +41,10 @@ while run:
 
     keys = pygame.key.get_pressed()
 
-    throttle = False
-
     if keys[pygame.K_w] and not exploded:
-        throttle = True
         c.y_vel = c.y_vel + 2
         c.move_direction("up")
     if keys[pygame.K_s] and not exploded:
-        throttle = True
         c.y_vel = c.y_vel + 2
         c.move_direction("down")
 
@@ -63,7 +59,13 @@ while run:
     for car in other_cars:
         if pygame.Rect.colliderect(c.rect, car.rect):
             collided_car = car
-            exploded = True
+            collisions = collisions + 1
+
+    if collisions == 1:
+        c.image = pygame.image.load("blue_car.png")
+
+    # if collisions == 2:
+    #     exploded = True
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
