@@ -1,4 +1,5 @@
 import pygame
+import time
 import random
 from car import Car
 from traffic import Traffic
@@ -21,7 +22,6 @@ size = (SCREEN_WIDTH, SCREEN_HEIGHT)
 screen = pygame.display.set_mode(size)
 
 message = "Points: 0"
-display_message = my_font.render(message, True, (255, 255, 255))
 
 c = Car(535, 500)
 t = Traffic(430, (random.randint(250, 500)))
@@ -30,14 +30,28 @@ t3 = Traffic3(525, random.randint(0, 250))
 bg = Background(280, 0)
 ex = Explosion(-1000, 0)
 
+ghost = False
+ghost_used = False
 exploded = False
 collisions = 0
 points = 0
+time_elapsed = "0s"
+current_time = 0
+time_remaining = 3
+ghost_start_time = 0
+ghost_time = 0
 collided_car = "none"
+start_time = time.time()
+
+display_message = my_font.render(message, True, (255, 255, 255))
+display_time = my_font.render(time_elapsed, True, (255, 255, 255))
 
 run = True
 
 while run:
+    current_time = time.time()
+
+    time_elapsed = round(current_time - start_time, 1)
 
     keys = pygame.key.get_pressed()
 
@@ -54,18 +68,30 @@ while run:
         t2.traffic_movement()
         t3.traffic_movement()
 
-    # Collisions
-    other_cars = [t, t2, t3]
-    for car in other_cars:
-        if pygame.Rect.colliderect(c.rect, car.rect):
-            collided_car = car
-            collisions = collisions + 1
+    if collisions == 1 and not ghost_used:
+        ghost = True
+        ghost_used = True
 
-    if collisions == 1:
-        c.image = pygame.image.load("blue_car.png")
+    if collisions == 2:
+        exploded = True
 
-    # if collisions == 2:
-    #     exploded = True
+    if ghost:
+        ghost_start_time = time.time()
+        pygame.Surface.set_alpha(c.image, 125)
+        ghost_time = round(ghost_start_time - start_time, 1)
+        if ghost_time == 3:
+            ghost = False
+
+    if not ghost:
+        pygame.Surface.set_alpha(c.image, 255)
+        # Collisions
+        other_cars = [t, t2, t3]
+        for car in other_cars:
+            if pygame.Rect.colliderect(c.rect, car.rect):
+                collided_car = car
+                collisions = collisions + 1
+
+    display_time = my_font.render(str(time_elapsed) + "s", True, (255, 255, 255))
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -78,10 +104,12 @@ while run:
                 c.move_direction("right")
 
     # bg.move_direction("up")
-
+    # fog.set_alpha(127)
+    # screen.blit(fog, (0, 0))
     screen.fill((106, 190, 48))
     screen.blit(bg.image, bg.rect)
-    screen.blit(display_message, (0, 0))
+    screen.blit(display_message, (1, 0))
+    screen.blit(display_time, (1, 20))
     screen.blit(t.image, t.rect)
     screen.blit(t2.image, t2.rect)
     screen.blit(t3.image, t3.rect)
