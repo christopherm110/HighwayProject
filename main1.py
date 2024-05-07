@@ -27,7 +27,7 @@ c = Car(535, 500)
 t = Traffic(430, -720)
 t2 = Traffic2(620, -360)
 t3 = Traffic3(525, 0)
-bg = Background(280, 0)
+bg = Background(280, -360)
 ex = Explosion(-1000, 0)
 
 ghost = False
@@ -123,7 +123,8 @@ while run:
             if event.key == 100:
                 c.move_direction("right")
 
-    # bg.move_direction("up")
+    bg.move_direction("down")
+
     screen.fill((106, 190, 48))
     screen.blit(bg.image, bg.rect)
     screen.blit(display_points, (1, 0))
