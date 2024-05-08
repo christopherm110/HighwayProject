@@ -24,15 +24,16 @@ screen = pygame.display.set_mode(size)
 message = "Points: 0"
 
 c = Car(535, 500)
-t = Traffic(430, -720)
-t2 = Traffic2(620, -360)
-t3 = Traffic3(525, 0)
+t = Traffic(430, -1040)
+t2 = Traffic2(620, -720)
+t3 = Traffic3(525, -360)
 bg = Background(280, -360)
 ex = Explosion(-1000, 0)
 
 ghost = False
 ghost_used = False
 exploded = False
+game_running = False
 collisions = 0
 points = 0
 time_elapsed = "0s"
@@ -40,11 +41,13 @@ current_time = 0
 time_remaining = 3
 ghost_start_time = 0
 ghost_time = 0
+ghost_end_time = 0
 collided_car = "none"
 other_cars = [t, t2, t3]
-start_time = time.time()
+start_time = 0
 milestone = 10
 milestone_reached = False
+game_paused = False
 milestone_message = round((milestone - 10) / 10)
 
 display_points = my_font.render(message, True, (255, 255, 255))
@@ -55,62 +58,82 @@ run = True
 
 while run:
 
-    # Time
-    current_time = time.time()
-    time_elapsed = round(current_time - start_time, 1)
-    display_time = my_font.render(str(time_elapsed) + "s", True, (255, 255, 255))
-
-    if time_elapsed == milestone:
-        milestone_reached = True
-
-    if milestone_reached:
-        milestone_reached = False
-        milestone = milestone + 10
-        for cars in other_cars:
-            cars.delta = cars.delta + 0.1
-    display_milestone = my_font.render("Milestone: " + str(milestone_message), True, (255, 255, 255))
-
-    # Point System
-    for car in other_cars:
-        if car.detect_off_screen():
-            points = points + 10
-            display_points = my_font.render("Points: " + str(points), True, (255, 255, 255))
-
     # Key Inputs
     keys = pygame.key.get_pressed()
     # Vertical Movement
-    if keys[pygame.K_w] and not exploded:
-        c.y_vel = c.y_vel + 2
-        c.move_direction("up")
-    if keys[pygame.K_s] and not exploded:
-        c.y_vel = c.y_vel + 2
-        c.move_direction("down")
+    if not game_paused:
+        if keys[pygame.K_w] and not exploded:
+            c.y_vel = c.y_vel + 2
+            c.move_direction("up")
+        if keys[pygame.K_s] and not exploded:
+            c.y_vel = c.y_vel + 2
+            c.move_direction("down")
+    # if keys[pygame.K_SPACE] and not game_running:
+    #     start_time = time.time()
+    #     game_running = True
+    # if keys[pygame.K_ESCAPE] and game_running:
+    #     game_paused = True
+    #     game_running = False
 
-    # Traffic Movement
-    if not exploded:
-        t.traffic_movement()
-        t2.traffic_movement()
-        t3.traffic_movement()
+    if game_running:
+        # Time
+        current_time = time.time()
+        time_elapsed = round(current_time - start_time, 1)
+        display_time = my_font.render(str(time_elapsed) + "s", True, (255, 255, 255))
 
-    # Ghost Mode
-    if collisions == 1 and not ghost_used:
-        ghost = True
-        ghost_used = True
-    if collisions == 2:
-        exploded = True
-    if ghost:
-        ghost_start_time = time.time()
-        pygame.Surface.set_alpha(c.image, 125)
-        ghost_time = round(ghost_start_time - start_time, 1)
-    if ghost_time == 3:
-        ghost = False
-    if not ghost:
-        pygame.Surface.set_alpha(c.image, 255)
-        # Collisions
+        if time_elapsed == milestone:
+            milestone_reached = True
+
+        if milestone_reached:
+            milestone_reached = False
+            milestone = milestone + 10
+            milestone_message = round((milestone - 10) / 10)
+            points = points + 50
+            for cars in other_cars:
+                cars.delta = cars.delta + 0.5
+        display_milestone = my_font.render("Milestone: " + str(milestone_message), True, (255, 255, 255))
+
+        # Point System
         for car in other_cars:
-            if pygame.Rect.colliderect(c.rect, car.rect):
-                collided_car = car
-                collisions = collisions + 1
+            if car.detect_off_screen():
+                points = points + 10
+        display_points = my_font.render("Points: " + str(points), True, (255, 255, 255))
+
+        # # Key Inputs
+        # keys = pygame.key.get_pressed()
+        # # Vertical Movement
+        # if keys[pygame.K_w] and not exploded:
+        #     c.y_vel = c.y_vel + 2
+        #     c.move_direction("up")
+        # if keys[pygame.K_s] and not exploded:
+        #     c.y_vel = c.y_vel + 2
+        #     c.move_direction("down")
+
+        # Traffic Movement
+        if not exploded:
+            t.traffic_movement()
+            t2.traffic_movement()
+            t3.traffic_movement()
+            bg.move_direction("down")
+
+        # Ghost Mode
+        if collisions == 1 and not ghost_used:
+            ghost = True
+            ghost_used = True
+            ghost_end_time = time_elapsed + 3
+        if collisions == 2:
+            exploded = True
+        if ghost:
+            pygame.Surface.set_alpha(c.image, 125)
+        if not ghost:
+            pygame.Surface.set_alpha(c.image, 255)
+            # Collisions
+            for car in other_cars:
+                if pygame.Rect.colliderect(c.rect, car.rect):
+                    collided_car = car
+                    collisions = collisions + 1
+        if time_elapsed == ghost_end_time:
+            ghost = False
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -118,12 +141,12 @@ while run:
 
         # Horizontal Movement
         if event.type == pygame.KEYDOWN and not exploded:
-            if event.key == 97:
-                c.move_direction("left")
-            if event.key == 100:
-                c.move_direction("right")
-
-    bg.move_direction("down")
+            # print(event.key)
+            if not game_paused:
+                if event.key == 97:
+                    c.move_direction("left")
+                if event.key == 100:
+                    c.move_direction("right")
 
     screen.fill((106, 190, 48))
     screen.blit(bg.image, bg.rect)
