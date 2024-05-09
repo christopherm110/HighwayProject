@@ -42,10 +42,13 @@ time_remaining = 3
 ghost_start_time = 0
 ghost_time = 0
 ghost_end_time = 0
+paused_time = 0
 collided_car = "none"
 other_cars = [t, t2, t3]
 start_time = 0
+total_pause_time = 0
 milestone = 10
+total_time = 0
 milestone_reached = False
 game_paused = False
 milestone_message = round((milestone - 10) / 10)
@@ -57,9 +60,9 @@ display_milestone = my_font.render("Milestone: " + str(milestone_message), True,
 run = True
 
 while run:
-
     # Key Inputs
     keys = pygame.key.get_pressed()
+
     # Vertical Movement
     if not game_paused:
         if keys[pygame.K_w] and not exploded:
@@ -68,20 +71,22 @@ while run:
         if keys[pygame.K_s] and not exploded:
             c.y_vel = c.y_vel + 2
             c.move_direction("down")
-    # if keys[pygame.K_SPACE] and not game_running:
-    #     start_time = time.time()
-    #     game_running = True
-    # if keys[pygame.K_ESCAPE] and game_running:
-    #     game_paused = True
-    #     game_running = False
 
-    if game_running:
+    if game_paused:
+        paused_time = time.time()
+        total_pause_time = round(paused_time - start_time, 1)
+    print(total_pause_time)
+    if not game_paused:
+        paused_time = 0
+
+    if game_running and not game_paused:
         # Time
         current_time = time.time()
         time_elapsed = round(current_time - start_time, 1)
-        display_time = my_font.render(str(time_elapsed) + "s", True, (255, 255, 255))
+        total_time = round(time_elapsed - total_pause_time, 1)
+        display_time = my_font.render(str(total_time) + "s", True, (255, 255, 255))
 
-        if time_elapsed == milestone:
+        if time_elapsed >= milestone:
             milestone_reached = True
 
         if milestone_reached:
@@ -98,16 +103,6 @@ while run:
             if car.detect_off_screen():
                 points = points + 10
         display_points = my_font.render("Points: " + str(points), True, (255, 255, 255))
-
-        # # Key Inputs
-        # keys = pygame.key.get_pressed()
-        # # Vertical Movement
-        # if keys[pygame.K_w] and not exploded:
-        #     c.y_vel = c.y_vel + 2
-        #     c.move_direction("up")
-        # if keys[pygame.K_s] and not exploded:
-        #     c.y_vel = c.y_vel + 2
-        #     c.move_direction("down")
 
         # Traffic Movement
         if not exploded:
@@ -141,12 +136,20 @@ while run:
 
         # Horizontal Movement
         if event.type == pygame.KEYDOWN and not exploded:
-            # print(event.key)
             if not game_paused:
+                # A key
                 if event.key == 97:
                     c.move_direction("left")
+                # D key
                 if event.key == 100:
                     c.move_direction("right")
+            # Space bar
+            if event.key == 32 and not game_running:
+                start_time = time.time()
+                game_running = True
+            # Esc key
+            if event.key == 27 and game_running:
+                game_paused = not game_paused
 
     screen.fill((106, 190, 48))
     screen.blit(bg.image, bg.rect)
