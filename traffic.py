@@ -7,14 +7,14 @@ class Traffic:
     def __init__(self, x, y):
         self.x = x
         self.y = y
-        self.image = pygame.image.load("blue_car.png")
-        self.image_size = self.image.get_size()
-        # scale_size = (self.image_size[0] * .1, self.image_size[1] * .1)
-        # self.image = pygame.transform.scale(self.image, scale_size)
-        # self.image_size = self.image.get_size()
-        self.rect = pygame.Rect(self.x, self.y, self.image_size[0], self.image_size[1])
         self.delta = 2
         self.points_given = False
+        self.traffic_list = ["blue_car.png", "gray_van.png", "green_truck.png", "white_cargo_truck.png",
+                             "yellow_coupe.png"]
+        self.car_rng = random.randint(1, 4)
+        self.image = pygame.image.load(self.traffic_list[self.car_rng])
+        self.image_size = self.image.get_size()
+        self.rect = pygame.Rect(self.x, self.y, self.image_size[0], self.image_size[1])
 
     def move_direction(self, direction):
         if direction == "up":
@@ -36,6 +36,8 @@ class Traffic:
     def detect_off_screen(self):
         if self.y > 720 and not self.points_given:
             self.points_given = True
+            self.car_rng = random.randint(0, 4)
+            self.image = pygame.image.load(self.traffic_list[self.car_rng])
             return True
         if 0 < self.y < 720 and self.points_given:
             self.points_given = False
