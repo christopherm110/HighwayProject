@@ -1,6 +1,5 @@
 import pygame
 import time
-# import random
 from car import Car
 from traffic import Traffic
 from traffic2 import Traffic2
@@ -24,9 +23,9 @@ screen = pygame.display.set_mode(size)
 message = "Points: 0"
 
 c = Car(535, 500)
-t = Traffic(430, -1040)
-t2 = Traffic2(620, -720)
-t3 = Traffic3(525, -360)
+t = Traffic(0, -1040)
+t2 = Traffic2(0, -360)
+t3 = Traffic3(0, -720)
 bg = Background(280, -360)
 ex = Explosion(-1000, 0)
 
@@ -56,6 +55,11 @@ milestone_message = round((milestone - 10) / 10)
 display_points = my_font.render(message, True, (255, 255, 255))
 display_time = my_font.render(time_elapsed, True, (255, 255, 255))
 display_milestone = my_font.render("Milestone: " + str(milestone_message), True, (255, 255, 255))
+
+# Function to center each car on a lane
+t.lane_center("left")
+t2.lane_center("middle")
+t3.lane_center("right")
 
 run = True
 
@@ -100,6 +104,9 @@ while run:
             # Point System
             for car in other_cars:
                 if car.detect_off_screen():
+                    t.lane_center("left")
+                    t2.lane_center("middle")
+                    t3.lane_center("right")
                     points = points + 10
             display_points = my_font.render("Points: " + str(points), True, (255, 255, 255))
 
@@ -114,9 +121,11 @@ while run:
             if keys[pygame.K_w] and not exploded:
                 c.y_vel = c.y_vel + 2
                 c.move_direction("up")
+                bg.move_direction("down")
             if keys[pygame.K_s] and not exploded:
                 c.y_vel = c.y_vel + 2
                 c.move_direction("down")
+                bg.move_direction("up")
 
             # Ghost Mode & Collisions
             if collisions == 1 and not ghost_used:
