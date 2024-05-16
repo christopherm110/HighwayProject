@@ -115,7 +115,7 @@ while run:
                 t.traffic_movement()
                 t2.traffic_movement()
                 t3.traffic_movement()
-                bg.move_direction("down")
+                bg.down_scroll()
 
             # Vertical Player Movement
             if keys[pygame.K_w] and not exploded:
