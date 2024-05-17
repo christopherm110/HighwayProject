@@ -35,7 +35,7 @@ exploded = False
 game_running = False
 collisions = 0
 points = 0
-time_elapsed = "0s"
+time_elapsed = 0
 current_time = 0
 time_remaining = 3
 ghost_start_time = 0
@@ -46,15 +46,20 @@ other_cars = [t, t2, t3]
 start_time = 0
 total_pause_time = 0
 milestone = 10
+pause_time = -1
 total_time = 0
 time_at_unpause = 0
 milestone_reached = False
 game_paused = False
+print_pause = False
 milestone_message = round((milestone - 10) / 10)
+time_until_pause = round(pause_time - time_elapsed)
+pause_message = "Pausing in... " + str(time_until_pause)
 
 display_points = my_font.render(message, True, (255, 255, 255))
-display_time = my_font.render(time_elapsed, True, (255, 255, 255))
+display_time = my_font.render(str(time_elapsed) + "s", True, (255, 255, 255))
 display_milestone = my_font.render("Milestone: " + str(milestone_message), True, (255, 255, 255))
+display_pause_time = my_font.render(pause_message, True, (255, 255, 255))
 
 # Function to center each car on a lane
 t.lane_center("left")
@@ -64,6 +69,11 @@ t3.lane_center("right")
 run = True
 
 while run:
+
+    time_until_pause = round(pause_time - time_elapsed)
+    pause_message = "Pausing in... " + str(time_until_pause)
+    display_pause_time = my_font.render(pause_message, True, (255, 255, 255))
+
     # Key Inputs
     keys = pygame.key.get_pressed()
 
@@ -83,11 +93,16 @@ while run:
         total_time = round(time_elapsed - total_pause_time, 1)
         display_time = my_font.render(str(time_elapsed) + "s", True, (255, 255, 255))
 
+        if time_elapsed == pause_time:
+            game_paused = not game_paused
+
         if game_paused:
             start_time = time.time()
             time_at_unpause = time_elapsed
 
         if not game_paused:
+            if time_elapsed == pause_time:
+                game_paused = True
 
             if time_elapsed >= milestone:
                 milestone_reached = True
@@ -165,14 +180,22 @@ while run:
                 start_time = time.time()
                 game_running = True
             # Esc key
-            if event.key == 27 and game_running:
-                game_paused = not game_paused
+            if event.key == 27 and game_running and not print_pause:
+                if not game_paused:
+                    pause_time = time_elapsed + 3
+                    print_pause = True
+                if game_paused:
+                    game_paused = False
 
     screen.fill((106, 190, 48))
     screen.blit(bg.image, bg.rect)
     screen.blit(display_points, (1, 0))
     screen.blit(display_time, (1, 20))
     screen.blit(display_milestone, (1, 40))
+    if time_until_pause == 0:
+        print_pause = False
+    if print_pause:
+        screen.blit(display_pause_time, (1, 60))
     screen.blit(t.image, t.rect)
     screen.blit(t2.image, t2.rect)
     screen.blit(t3.image, t3.rect)
