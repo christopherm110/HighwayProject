@@ -6,10 +6,14 @@ from traffic2 import Traffic2
 from traffic3 import Traffic3
 from background import Background
 from explosion import Explosion
+from keycaps import Keycaps
+from stats import Stats
+from credit import Credit
+from hide import Hide
 
 pygame.init()
 pygame.font.init()
-my_font = pygame.font.SysFont('Arial', 15)
+my_font = pygame.font.SysFont('Bahnschrift', 20)
 pygame.display.set_caption("Final Project Demo")
 clock = pygame.time.Clock()
 
@@ -28,6 +32,10 @@ t2 = Traffic2(0, -360)
 t3 = Traffic3(0, -720)
 bg = Background(280, -360)
 ex = Explosion(-1000, 0)
+k = Keycaps(90, 180)
+s = Stats(2, 2)
+cred = Credit(2, 706)
+hide = Hide(2, 690)
 
 ghost = False
 ghost_used = False
@@ -52,13 +60,14 @@ time_at_unpause = 0
 milestone_reached = False
 game_paused = False
 print_pause = False
+show_tut = True
 milestone_message = round((milestone - 10) / 10)
 time_until_pause = round(pause_time - time_elapsed)
 pause_message = "Pausing in... " + str(time_until_pause)
 
-display_points = my_font.render(message, True, (255, 255, 255))
+display_points = my_font.render(str(points), True, (255, 255, 255))
 display_time = my_font.render(str(time_elapsed) + "s", True, (255, 255, 255))
-display_milestone = my_font.render("Milestone: " + str(milestone_message), True, (255, 255, 255))
+display_milestone = my_font.render(str(milestone_message), True, (255, 255, 255))
 display_pause_time = my_font.render(pause_message, True, (255, 255, 255))
 
 # Function to center each car on a lane
@@ -114,7 +123,7 @@ while run:
                 points = points + 50
                 for cars in other_cars:
                     cars.delta = cars.delta + 0.5
-            display_milestone = my_font.render("Milestone: " + str(milestone_message), True, (255, 255, 255))
+            display_milestone = my_font.render(str(milestone_message), True, (255, 255, 255))
 
             # Point System
             for car in other_cars:
@@ -123,24 +132,22 @@ while run:
                     t2.lane_center("middle")
                     t3.lane_center("right")
                     points = points + 10
-            display_points = my_font.render("Points: " + str(points), True, (255, 255, 255))
+            display_points = my_font.render(str(points), True, (255, 255, 255))
 
             # Traffic Movement
             if not exploded:
                 t.traffic_movement()
                 t2.traffic_movement()
                 t3.traffic_movement()
-                bg.down_scroll()
+                bg.move_direction("down")
 
             # Vertical Player Movement
             if keys[pygame.K_w] and not exploded:
                 c.y_vel = c.y_vel + 2
                 c.move_direction("up")
-                bg.move_direction("down")
             if keys[pygame.K_s] and not exploded:
                 c.y_vel = c.y_vel + 2
                 c.move_direction("down")
-                bg.move_direction("up")
 
             # Ghost Mode & Collisions
             if collisions == 1 and not ghost_used:
@@ -168,6 +175,9 @@ while run:
 
         # Horizontal Player Movement
         if event.type == pygame.KEYDOWN and not exploded:
+            print(event.key)
+            if event.key == 104:
+                show_tut = not show_tut
             if not game_paused:
                 # A key
                 if event.key == 97:
@@ -189,9 +199,14 @@ while run:
 
     screen.fill((106, 190, 48))
     screen.blit(bg.image, bg.rect)
-    screen.blit(display_points, (1, 0))
-    screen.blit(display_time, (1, 20))
-    screen.blit(display_milestone, (1, 40))
+    screen.blit(s.image, s.rect)
+    screen.blit(cred.image, cred.rect)
+    if show_tut:
+        screen.blit(k.image, k.rect)
+        screen.blit(hide.image, hide.rect)
+    screen.blit(display_points, (200, 9))
+    screen.blit(display_time, (100, 43))
+    screen.blit(display_milestone, (200, 78))
     if time_until_pause == 0:
         print_pause = False
     if print_pause:
