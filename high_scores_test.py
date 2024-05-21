@@ -1,17 +1,23 @@
-hs = open("high_scores", "r")
-high_score = hs.readline().strip()
-points = 0
-high_score_set = False
-if high_score != "":
-    high_score_set = True
-high_score_message = "High score: " + str(high_score)
-display_high_score = my_font.render(high_score_message, True, (255, 255, 255))
-if not high_score_set:
-    hs = open("high_scores", "w")
-    hs.write(str(points))
-elif high_score_set:
-    if points > int(high_score) or not high_score_set:
-        hs = open("high_scores", "w")
-        hs.write(str(points))
-        high_score_message = "High score: " + str(points_p1) + " (NEW HIGH SCORE!)"
-display_high_score = my_font.render(high_score_message, True, (255, 255, 255))
+class Highscore:
+
+    def __init__(self, user_points):
+        self.hs = open("high_scores", "r")
+        self.high_score = self.hs.readline().strip()
+        self.points = user_points
+        self.high_score_set = False
+        if self.high_score != "":
+            self.high_score_set = True
+        self.new_high_score = False
+
+    def check_for_hs(self):
+        if self.high_score == "":
+            self.high_score = 0
+            self.new_high_score = True
+            self.high_score_set = True
+
+        if self.high_score_set and self.points > int(self.high_score):
+            self.new_high_score = True
+
+        if self.new_high_score:
+            hs = open("high_scores", "w")
+            hs.write(str(self.points))
