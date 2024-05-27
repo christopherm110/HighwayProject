@@ -6,10 +6,8 @@ from traffic2 import Traffic2
 from traffic3 import Traffic3
 from background import Background
 from explosion import Explosion
-from keycaps import Keycaps
+from controls import Controls
 from stats import Stats
-from credit import Credit
-from hide import Hide
 from high_scores_test import Highscore
 
 pygame.init()
@@ -31,10 +29,8 @@ t2 = Traffic2(0, -360)
 t3 = Traffic3(0, -720)
 bg = Background(280, -360)
 ex = Explosion(-1000, 0)
-k = Keycaps(90, 180)
+con = Controls(90, 180)
 s = Stats(2, 2)
-cred = Credit(2, 706)
-hide = Hide(2, 690)
 
 ghost = False
 ghost_used = False
@@ -58,24 +54,26 @@ total_time = 0
 time_at_unpause = 0
 milestone_reached = False
 game_paused = False
-print_pause = False
+show_pause = False
 show_tut = True
 
 hs = Highscore(points)
-print(hs.high_score)
 hs_set = hs.high_score_set
-print(hs_set)
 
 milestone_message = round((milestone - 10) / 10)
 time_until_pause = round(pause_time - time_elapsed)
 pause_message = "Pausing in... " + str(time_until_pause)
-high_score_msg = "High score: " + str(hs.high_score)
+high_score_message = str(hs.high_score)
+hide_controls_message = "Press 'H' to hide controls"
+credit_message = "Art, coding, by Christopher Meregildo"
 
 display_points = my_font.render(str(points), True, (255, 255, 255))
 display_time = my_font.render(str(time_elapsed) + "s", True, (255, 255, 255))
 display_milestone = my_font.render(str(milestone_message), True, (255, 255, 255))
 display_pause_time = my_font.render(pause_message, True, (255, 255, 255))
-display_high_score = my_font.render(high_score_msg, True, (255, 255, 255))
+display_high_score = my_font.render(high_score_message, True, (255, 255, 255))
+display_hide_controls = my_font.render(hide_controls_message, True, (255, 255, 255))
+display_credits = my_font.render(credit_message, True, (255, 255, 255))
 
 # Function to center each car on a lane
 t.lane_center("left")
@@ -85,12 +83,11 @@ t3.lane_center("right")
 run = True
 
 while run:
-
+    # Updates Messages
     time_until_pause = round(pause_time - time_elapsed)
     pause_message = "Pausing in... " + str(time_until_pause)
     display_pause_time = my_font.render(pause_message, True, (255, 255, 255))
-
-    display_high_score = my_font.render(high_score_msg, True, (255, 255, 255))
+    display_high_score = my_font.render(high_score_message, True, (255, 255, 255))
 
     # Key Inputs
     keys = pygame.key.get_pressed()
@@ -105,15 +102,16 @@ while run:
             c.move_direction("down")
 
     if game_running:
+
         # Time
         current_time = time.time()
         time_elapsed = round(current_time - start_time + time_at_unpause, 1)
         total_time = round(time_elapsed - total_pause_time, 1)
         display_time = my_font.render(str(time_elapsed) + "s", True, (255, 255, 255))
 
+        # Pausing
         if time_elapsed == pause_time:
             game_paused = not game_paused
-
         if game_paused:
             start_time = time.time()
             time_at_unpause = time_elapsed
@@ -122,9 +120,9 @@ while run:
             if time_elapsed == pause_time:
                 game_paused = True
 
+            # Milestone Mechanic
             if time_elapsed >= milestone:
                 milestone_reached = True
-
             if milestone_reached:
                 milestone_reached = False
                 milestone = milestone + 10
@@ -199,12 +197,14 @@ while run:
                     start_time = time.time()
                     game_running = True
                 # Esc key
-                if event.key == 27 and game_running and not print_pause:
+                if event.key == 27 and game_running and not show_pause:
                     if not game_paused:
                         pause_time = time_elapsed + 3
-                        print_pause = True
+                        show_pause = True
                     if game_paused:
                         game_paused = False
+
+            # Game Restart
             if exploded and event.key == 32:
                 c = Car(535, 500)
                 t = Traffic(0, -1040)
@@ -222,29 +222,38 @@ while run:
                 game_running = False
                 collisions = 0
                 points = 0
-
+                time_elapsed = 0
+                current_time = 0
+                time_remaining = 3
+                ghost_start_time = 0
                 ghost_time = 0
                 ghost_end_time = 0
-                collided_car = "none"  # Check if necessary
-
+                collided_car = "none"
+                other_cars = [t, t2, t3]
+                start_time = 0
+                total_pause_time = 0
                 milestone = 10
+                pause_time = -1
+                total_time = 0
+                time_at_unpause = 0
                 milestone_reached = False
                 game_paused = False
-                print_pause = False
+                show_pause = False
                 show_tut = True
 
                 hs = Highscore(points)
-                print(hs.high_score)
                 hs_set = hs.high_score_set
-                print(hs_set)
 
                 milestone_message = round((milestone - 10) / 10)
                 time_until_pause = round(pause_time - time_elapsed)
                 pause_message = "Pausing in... " + str(time_until_pause)
-                high_score_msg = "High score: " + str(hs.high_score)
+                high_score_message = str(hs.high_score)
 
                 exploded = False
+
+    # Game Over
     if exploded:
+        # Shows the fireball
         if c.y - collided_car.y < 0:
             ex.move(c.x - 80, c.y + 10)
         if c.y - collided_car.y > 0:
@@ -252,24 +261,30 @@ while run:
         if c.y - collided_car.y == 0:
             ex.move(c.x - 80, c.y - 40)
 
+        # High Score
         hs = Highscore(points)
         hs.check_for_hs()
         hs_broken = hs.new_high_score
+
     screen.fill((106, 190, 48))
     screen.blit(bg.image, bg.rect)
     screen.blit(s.image, s.rect)
-    screen.blit(cred.image, cred.rect)
+
     if show_tut:
-        screen.blit(k.image, k.rect)
-        screen.blit(hide.image, hide.rect)
+        screen.blit(con.image, con.rect)
+        screen.blit(display_hide_controls, (2, 679))
+
+    screen.blit(display_credits, (2, 699))
     screen.blit(display_points, (200, 9))
     screen.blit(display_time, (100, 43))
     screen.blit(display_milestone, (200, 78))
     screen.blit(display_high_score, (1, 110))
+
     if time_until_pause == 0:
-        print_pause = False
-    if print_pause:
-        screen.blit(display_pause_time, (1, 60))
+        show_pause = False
+    if show_pause:
+        screen.blit(display_pause_time, (500, 10))
+
     screen.blit(t.image, t.rect)
     screen.blit(t2.image, t2.rect)
     screen.blit(t3.image, t3.rect)
