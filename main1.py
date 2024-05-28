@@ -6,6 +6,7 @@ from traffic2 import Traffic2
 from traffic3 import Traffic3
 from background import Background
 from explosion import Explosion
+from ghost import Ghost
 from controls import Controls
 from stats import Stats
 from high_scores_test import Highscore
@@ -31,9 +32,11 @@ bg = Background(280, -360)
 ex = Explosion(-1000, 0)
 con = Controls(90, 180)
 s = Stats(2, 2)
+g = Ghost(537, -1000)
 
 ghost = False
-ghost_used = False
+ghost_uses = 1
+ghost_activated = False
 exploded = False
 game_running = False
 collisions = 0
@@ -83,6 +86,7 @@ t3.lane_center("right")
 run = True
 
 while run:
+
     # Updates Messages
     time_until_pause = round(pause_time - time_elapsed)
     pause_message = "Pausing in... " + str(time_until_pause)
@@ -148,6 +152,9 @@ while run:
                 t3.traffic_movement()
                 bg.move_direction("down")
 
+            # Powerups
+            g.movement()
+
             # Vertical Player Movement
             if keys[pygame.K_w] and not exploded:
                 c.y_vel = c.y_vel + 2
@@ -157,13 +164,22 @@ while run:
                 c.move_direction("down")
 
             # Ghost Mode & Collisions
-            if collisions == 1 and not ghost_used:
+            g.check_collisions(c)
+            if g.ghost_obtained:
+                ghost_uses = ghost_uses + 1
+                g.ghost_obtained = False
+
+            if ghost_activated:
+                ghost_uses = ghost_uses - 1
                 ghost = True
-                ghost_used = True
                 ghost_end_time = time_elapsed + 3
-            if collisions == 2:
-                exploded = True
-                game_running = False
+                ghost_activated = False
+
+            if ghost_uses < 0:
+                ghost_uses = 0
+
+            print(ghost_uses)
+
             if ghost:
                 pygame.Surface.set_alpha(c.image, 125)
             if not ghost:
@@ -173,6 +189,12 @@ while run:
                     if pygame.Rect.colliderect(c.rect, car.rect):
                         collided_car = car
                         collisions = collisions + 1
+                        if ghost_uses >= 1:
+                            ghost_activated = True
+                        if ghost_uses == 0:
+                            exploded = True
+                            game_running = False
+
             if time_elapsed == ghost_end_time:
                 ghost = False
 
@@ -218,8 +240,7 @@ while run:
                 t3.lane_center("right")
 
                 ghost = False
-                ghost_used = False
-                game_running = False
+                ghost_uses = 1
                 collisions = 0
                 points = 0
                 time_elapsed = 0
@@ -237,7 +258,6 @@ while run:
                 total_time = 0
                 time_at_unpause = 0
                 milestone_reached = False
-                game_paused = False
                 show_pause = False
                 show_tut = True
 
@@ -249,6 +269,8 @@ while run:
                 pause_message = "Pausing in... " + str(time_until_pause)
                 high_score_message = str(hs.high_score)
 
+                game_running = False
+                game_paused = False
                 exploded = False
 
     # Game Over
@@ -288,6 +310,7 @@ while run:
     screen.blit(t.image, t.rect)
     screen.blit(t2.image, t2.rect)
     screen.blit(t3.image, t3.rect)
+    screen.blit(g.image, g.rect)
     screen.blit(c.image, c.rect)
     screen.blit(ex.image, ex.rect)
     pygame.display.update()
