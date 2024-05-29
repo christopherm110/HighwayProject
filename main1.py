@@ -10,6 +10,7 @@ from ghost import Ghost
 from controls import Controls
 from stats import Stats
 from high_scores_test import Highscore
+from hud import HUD
 
 pygame.init()
 pygame.font.init()
@@ -30,9 +31,10 @@ t2 = Traffic2(0, -360)
 t3 = Traffic3(0, -720)
 bg = Background(280, -360)
 ex = Explosion(-1000, 0)
-con = Controls(90, 180)
-s = Stats(2, 2)
-g = Ghost(537, -1000)
+# con = Controls(90, 180)
+# s = Stats(2, 2)
+menu = HUD(90, 180, 2, 2)
+g = Ghost(-34)
 
 ghost = False
 ghost_uses = 1
@@ -78,10 +80,11 @@ display_high_score = my_font.render(high_score_message, True, (255, 255, 255))
 display_hide_controls = my_font.render(hide_controls_message, True, (255, 255, 255))
 display_credits = my_font.render(credit_message, True, (255, 255, 255))
 
-# Function to center each car on a lane
+# Function to center each asset on a lane
 t.lane_center("left")
 t2.lane_center("middle")
 t3.lane_center("right")
+g.update_lane()
 
 run = True
 
@@ -153,18 +156,17 @@ while run:
                 bg.move_direction("down")
 
             # Powerups
-            g.movement()
 
-            # Vertical Player Movement
-            if keys[pygame.K_w] and not exploded:
-                c.y_vel = c.y_vel + 2
-                c.move_direction("up")
-            if keys[pygame.K_s] and not exploded:
-                c.y_vel = c.y_vel + 2
-                c.move_direction("down")
+            # Ghost Powerup
+            g.check_collisions(c)
+            if time_elapsed == g.ghost_spawn_time:
+                g.ghost_spawned = True
+                g.new_spawn_time(time_elapsed)
+
+            if g.ghost_spawned:
+                g.movement()
 
             # Ghost Mode & Collisions
-            g.check_collisions(c)
             if g.ghost_obtained:
                 ghost_uses = ghost_uses + 1
                 g.ghost_obtained = False
@@ -177,8 +179,6 @@ while run:
 
             if ghost_uses < 0:
                 ghost_uses = 0
-
-            print(ghost_uses)
 
             if ghost:
                 pygame.Surface.set_alpha(c.image, 125)
@@ -197,6 +197,14 @@ while run:
 
             if time_elapsed == ghost_end_time:
                 ghost = False
+
+            # Vertical Player Movement
+            if keys[pygame.K_w] and not exploded:
+                c.y_vel = c.y_vel + 2
+                c.move_direction("up")
+            if keys[pygame.K_s] and not exploded:
+                c.y_vel = c.y_vel + 2
+                c.move_direction("down")
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -241,6 +249,7 @@ while run:
 
                 ghost = False
                 ghost_uses = 1
+                ghost_activated = False
                 collisions = 0
                 points = 0
                 time_elapsed = 0
@@ -290,11 +299,12 @@ while run:
 
     screen.fill((106, 190, 48))
     screen.blit(bg.image, bg.rect)
+    screen.blit(c.image, c.rect)
     screen.blit(s.image, s.rect)
 
-    if show_tut:
-        screen.blit(con.image, con.rect)
-        screen.blit(display_hide_controls, (2, 679))
+    # if show_tut:
+    #     screen.blit(graphics.controls, con.rect)
+    #     screen.blit(display_hide_controls, (2, 679))
 
     screen.blit(display_credits, (2, 699))
     screen.blit(display_points, (200, 9))
