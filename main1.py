@@ -7,10 +7,9 @@ from traffic3 import Traffic3
 from background import Background
 from explosion import Explosion
 from ghost import Ghost
-from controls import Controls
-from stats import Stats
+from hourglass import Hourglass
 from high_scores_test import Highscore
-from hud import HUD
+from menu import Menu
 
 pygame.init()
 pygame.font.init()
@@ -31,14 +30,13 @@ t2 = Traffic2(0, -360)
 t3 = Traffic3(0, -720)
 bg = Background(280, -360)
 ex = Explosion(-1000, 0)
-# con = Controls(90, 180)
-# s = Stats(2, 2)
-menu = HUD(90, 180, 2, 2)
-g = Ghost(-34)
+menu = Menu()
+g = Ghost()
+h = Hourglass()
 
 ghost = False
-ghost_uses = 1
 ghost_activated = False
+
 exploded = False
 game_running = False
 collisions = 0
@@ -46,9 +44,6 @@ points = 0
 time_elapsed = 0
 current_time = 0
 time_remaining = 3
-ghost_start_time = 0
-ghost_time = 0
-ghost_end_time = 0
 collided_car = "none"
 other_cars = [t, t2, t3]
 start_time = 0
@@ -155,30 +150,53 @@ while run:
                 t3.traffic_movement()
                 bg.move_direction("down")
 
-            # Powerups
+            # Power-ups
+            power_ups = [h, g]
 
-            # Ghost Powerup
-            g.check_collisions(c)
-            if time_elapsed == g.ghost_spawn_time:
-                g.ghost_spawned = True
-                g.new_spawn_time(time_elapsed)
+            for power_up in power_ups:
+                power_up.check_collisions(c)
+                if time_elapsed == power_up.spawn_time:
+                    power_up.spawned = True
+                    power_up.new_spawn_time(time_elapsed)
 
-            if g.ghost_spawned:
-                g.movement()
+                if power_up.spawned:
+                    power_up.movement()
+
+            if h.obtained:
+                h.activated = True
+                h.duration = time_elapsed + 5
+                h.traffic1_delta = t.delta
+                h.traffic2_delta = t2.delta
+                h.traffic3_delta = t3.delta
+                h.bg_delta = bg.delta
+                h.obtained = False
+
+            if h.activated:
+                t.delta = 1
+                t2.delta = 1
+                t3.delta = 1
+                bg.delta = 1
+
+            if time_elapsed == h.duration:
+                t.delta = h.traffic1_delta
+                t2.delta = h.traffic2_delta
+                t3.delta = h.traffic3_delta
+                bg.delta = h.bg_delta
+                h.activated = False
 
             # Ghost Mode & Collisions
-            if g.ghost_obtained:
-                ghost_uses = ghost_uses + 1
-                g.ghost_obtained = False
+            if g.obtained:
+                g.remaining_uses = g.remaining_uses + 1
+                g.obtained = False
 
             if ghost_activated:
-                ghost_uses = ghost_uses - 1
+                g.remaining_uses = g.remaining_uses - 1
                 ghost = True
-                ghost_end_time = time_elapsed + 3
+                g.duration = time_elapsed + 3
                 ghost_activated = False
 
-            if ghost_uses < 0:
-                ghost_uses = 0
+            if g.remaining_uses < 0:
+                g.remaining_uses = 0
 
             if ghost:
                 pygame.Surface.set_alpha(c.image, 125)
@@ -189,13 +207,13 @@ while run:
                     if pygame.Rect.colliderect(c.rect, car.rect):
                         collided_car = car
                         collisions = collisions + 1
-                        if ghost_uses >= 1:
+                        if g.remaining_uses >= 1:
                             ghost_activated = True
-                        if ghost_uses == 0:
+                        if g.remaining_uses == 0:
                             exploded = True
                             game_running = False
 
-            if time_elapsed == ghost_end_time:
+            if time_elapsed == g.duration:
                 ghost = False
 
             # Vertical Player Movement
@@ -255,9 +273,6 @@ while run:
                 time_elapsed = 0
                 current_time = 0
                 time_remaining = 3
-                ghost_start_time = 0
-                ghost_time = 0
-                ghost_end_time = 0
                 collided_car = "none"
                 other_cars = [t, t2, t3]
                 start_time = 0
@@ -300,11 +315,11 @@ while run:
     screen.fill((106, 190, 48))
     screen.blit(bg.image, bg.rect)
     screen.blit(c.image, c.rect)
-    screen.blit(s.image, s.rect)
+    screen.blit(menu.stats, menu.stats_rect)
 
-    # if show_tut:
-    #     screen.blit(graphics.controls, con.rect)
-    #     screen.blit(display_hide_controls, (2, 679))
+    if show_tut:
+        screen.blit(menu.controls, menu.controls_rect)
+        screen.blit(display_hide_controls, (2, 679))
 
     screen.blit(display_credits, (2, 699))
     screen.blit(display_points, (200, 9))
@@ -321,6 +336,7 @@ while run:
     screen.blit(t2.image, t2.rect)
     screen.blit(t3.image, t3.rect)
     screen.blit(g.image, g.rect)
+    screen.blit(h.image, h.rect)
     screen.blit(c.image, c.rect)
     screen.blit(ex.image, ex.rect)
     pygame.display.update()

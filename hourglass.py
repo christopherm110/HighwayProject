@@ -2,19 +2,23 @@ import pygame
 import random
 
 
-class Ghost:
+class Hourglass:
 
     def __init__(self):
-        self.x = 535
+        self.x = 542
         self.y = -34
+        self.traffic1_delta = 0
+        self.traffic2_delta = 0
+        self.traffic3_delta = 0
+        self.bg_delta = 0
         self.lane_rng = random.randint(1, 3)
-        self.spawn_time = random.randint(5, 30)
+        self.spawn_time = random.randint(1, 5)
         self.obtained = False
         self.spawned = False
-        self.delta = 3
+        self.activated = False
         self.duration = -1
-        self.remaining_uses = 1
-        self.image = pygame.image.load("ghost.png")
+        self.delta = 3
+        self.image = pygame.image.load("hourglass.png")
         self.image_size = self.image.get_size()
         self.rect = pygame.Rect(self.x, self.y, self.image_size[0], self.image_size[1])
 
@@ -39,8 +43,8 @@ class Ghost:
 
     def update_lane(self):
         if self.lane_rng == 1:
-            self.x = 445
+            self.x = 447
         if self.lane_rng == 2:
-            self.x = 540
+            self.x = 542
         if self.lane_rng == 3:
-            self.x = 635
+            self.x = 637
