@@ -12,7 +12,7 @@ class Hourglass:
         self.traffic3_delta = 0
         self.bg_delta = 0
         self.lane_rng = random.randint(1, 3)
-        self.spawn_time = random.randint(1, 5)
+        self.spawn_time = random.randint(5, 30)
         self.obtained = False
         self.spawned = False
         self.activated = False

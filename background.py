@@ -11,11 +11,8 @@ class Background:
         self.rect = pygame.Rect(self.x, self.y, self.image_size[0], self.image_size[1])
         self.delta = 3
 
-    def move_direction(self, direction):
-        if direction == "up":
-            self.y = self.y - self.delta
-        if direction == "down":
-            self.y = self.y + self.delta
+    def down_scroll(self):
+        self.y = self.y + self.delta
 
         if self.y > 0:
             self.y = -360

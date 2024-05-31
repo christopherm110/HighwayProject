@@ -10,6 +10,7 @@ from ghost import Ghost
 from hourglass import Hourglass
 from high_scores_test import Highscore
 from menu import Menu
+from traffic_test import Test
 
 pygame.init()
 pygame.font.init()
@@ -34,40 +35,46 @@ menu = Menu()
 g = Ghost()
 h = Hourglass()
 
-ghost = False
-ghost_activated = False
+# Sprite Groups Test
+traffic_group = pygame.sprite.Group()
+traffic_test = Test(0, -1040)
+traffic_group.add(traffic_test)
+traffic_test2 = Test(0, -360)
+traffic_group.add(traffic_test2)
+traffic_test3 = Test(0, -720)
+traffic_group.add(traffic_test3)
+traffic_test.lane_center("left")
+traffic_test2.lane_center("middle")
+traffic_test3.lane_center("right")
+
 
 exploded = False
 game_running = False
-collisions = 0
-points = 0
 time_elapsed = 0
 current_time = 0
 time_remaining = 3
-collided_car = "none"
-other_cars = [t, t2, t3]
+# other_cars = [t, t2, t3]
+other_cars = [traffic_test, traffic_test2, traffic_test3]
 start_time = 0
 total_pause_time = 0
-milestone = 10
 pause_time = -1
 total_time = 0
 time_at_unpause = 0
-milestone_reached = False
 game_paused = False
 show_pause = False
 show_tut = True
 
-hs = Highscore(points)
+hs = Highscore(c.points)
 hs_set = hs.high_score_set
 
-milestone_message = round((milestone - 10) / 10)
+milestone_message = round((c.milestone - 10) / 10)
 time_until_pause = round(pause_time - time_elapsed)
 pause_message = "Pausing in... " + str(time_until_pause)
 high_score_message = str(hs.high_score)
 hide_controls_message = "Press 'H' to hide controls"
 credit_message = "Art, coding, by Christopher Meregildo"
 
-display_points = my_font.render(str(points), True, (255, 255, 255))
+display_points = my_font.render(str(c.points), True, (255, 255, 255))
 display_time = my_font.render(str(time_elapsed) + "s", True, (255, 255, 255))
 display_milestone = my_font.render(str(milestone_message), True, (255, 255, 255))
 display_pause_time = my_font.render(pause_message, True, (255, 255, 255))
@@ -75,11 +82,12 @@ display_high_score = my_font.render(high_score_message, True, (255, 255, 255))
 display_hide_controls = my_font.render(hide_controls_message, True, (255, 255, 255))
 display_credits = my_font.render(credit_message, True, (255, 255, 255))
 
-# Function to center each asset on a lane
-t.lane_center("left")
-t2.lane_center("middle")
-t3.lane_center("right")
+# Function to center traffic and powerups on a lane
+# t.lane_center("left")
+# t2.lane_center("middle")
+# t3.lane_center("right")
 g.update_lane()
+h.update_lane()
 
 run = True
 
@@ -123,13 +131,13 @@ while run:
                 game_paused = True
 
             # Milestone Mechanic
-            if time_elapsed >= milestone:
-                milestone_reached = True
-            if milestone_reached:
-                milestone_reached = False
-                milestone = milestone + 10
-                milestone_message = round((milestone - 10) / 10)
-                points = points + 50
+            if time_elapsed >= c.milestone:
+                c.milestone_reached = True
+            if c.milestone_reached:
+                c.milestone_reached = False
+                c.milestone = c.milestone + 10
+                milestone_message = round((c.milestone - 10) / 10)
+                c.points = c.points + 50
                 for cars in other_cars:
                     cars.delta = cars.delta + 0.5
             display_milestone = my_font.render(str(milestone_message), True, (255, 255, 255))
@@ -137,18 +145,24 @@ while run:
             # Point System
             for car in other_cars:
                 if car.detect_off_screen():
-                    t.lane_center("left")
-                    t2.lane_center("middle")
-                    t3.lane_center("right")
-                    points = points + 10
-            display_points = my_font.render(str(points), True, (255, 255, 255))
+                    traffic_test.lane_center("left")
+                    traffic_test2.lane_center("middle")
+                    traffic_test3.lane_center("right")
+                    # t.lane_center("left")
+                    # t2.lane_center("middle")
+                    # t3.lane_center("right")
+                    c.points = c.points + 10
+            display_points = my_font.render(str(c.points), True, (255, 255, 255))
 
             # Traffic Movement
             if not exploded:
-                t.traffic_movement()
-                t2.traffic_movement()
-                t3.traffic_movement()
-                bg.move_direction("down")
+                traffic_test.traffic_movement()
+                traffic_test2.traffic_movement()
+                traffic_test3.traffic_movement()
+                # t.traffic_movement()
+                # t2.traffic_movement()
+                # t3.traffic_movement()
+                bg.down_scroll()
 
             # Power-ups
             power_ups = [h, g]
@@ -172,15 +186,21 @@ while run:
                 h.obtained = False
 
             if h.activated:
-                t.delta = 1
-                t2.delta = 1
-                t3.delta = 1
+                traffic_test.delta = 1
+                traffic_test2.delta = 1
+                traffic_test3.delta = 1
+                # t.delta = 1
+                # t2.delta = 1
+                # t3.delta = 1
                 bg.delta = 1
 
             if time_elapsed == h.duration:
-                t.delta = h.traffic1_delta
-                t2.delta = h.traffic2_delta
-                t3.delta = h.traffic3_delta
+                traffic_test.delta = h.traffic1_delta
+                traffic_test2.delta = h.traffic2_delta
+                traffic_test3.delta = h.traffic3_delta
+                # t.delta = h.traffic1_delta
+                # t2.delta = h.traffic2_delta
+                # t3.delta = h.traffic3_delta
                 bg.delta = h.bg_delta
                 h.activated = False
 
@@ -189,32 +209,32 @@ while run:
                 g.remaining_uses = g.remaining_uses + 1
                 g.obtained = False
 
-            if ghost_activated:
+            if g.activated:
                 g.remaining_uses = g.remaining_uses - 1
-                ghost = True
+                g.enabled = True
                 g.duration = time_elapsed + 3
-                ghost_activated = False
+                g.activated = False
 
             if g.remaining_uses < 0:
                 g.remaining_uses = 0
 
-            if ghost:
+            if g.enabled:
                 pygame.Surface.set_alpha(c.image, 125)
-            if not ghost:
+            if not g.enabled:
                 pygame.Surface.set_alpha(c.image, 255)
                 # Collisions
                 for car in other_cars:
                     if pygame.Rect.colliderect(c.rect, car.rect):
-                        collided_car = car
-                        collisions = collisions + 1
+                        c.collided_car = car
+                        c.collisions = c.collisions + 1
                         if g.remaining_uses >= 1:
-                            ghost_activated = True
+                            g.activated = True
                         if g.remaining_uses == 0:
                             exploded = True
                             game_running = False
 
             if time_elapsed == g.duration:
-                ghost = False
+                g.enabled = False
 
             # Vertical Player Movement
             if keys[pygame.K_w] and not exploded:
@@ -253,62 +273,62 @@ while run:
                         game_paused = False
 
             # Game Restart
-            if exploded and event.key == 32:
-                c = Car(535, 500)
-                t = Traffic(0, -1040)
-                t2 = Traffic2(0, -360)
-                t3 = Traffic3(0, -720)
-                bg = Background(280, -360)
-                ex = Explosion(-1000, 0)
-
-                t.lane_center("left")
-                t2.lane_center("middle")
-                t3.lane_center("right")
-
-                ghost = False
-                ghost_uses = 1
-                ghost_activated = False
-                collisions = 0
-                points = 0
-                time_elapsed = 0
-                current_time = 0
-                time_remaining = 3
-                collided_car = "none"
-                other_cars = [t, t2, t3]
-                start_time = 0
-                total_pause_time = 0
-                milestone = 10
-                pause_time = -1
-                total_time = 0
-                time_at_unpause = 0
-                milestone_reached = False
-                show_pause = False
-                show_tut = True
-
-                hs = Highscore(points)
-                hs_set = hs.high_score_set
-
-                milestone_message = round((milestone - 10) / 10)
-                time_until_pause = round(pause_time - time_elapsed)
-                pause_message = "Pausing in... " + str(time_until_pause)
-                high_score_message = str(hs.high_score)
-
-                game_running = False
-                game_paused = False
-                exploded = False
+            # if exploded and event.key == 32:
+            #     c = Car(535, 500)
+            #     t = Traffic(0, -1040)
+            #     t2 = Traffic2(0, -360)
+            #     t3 = Traffic3(0, -720)
+            #     bg = Background(280, -360)
+            #     ex = Explosion(-1000, 0)
+            #
+            #     t.lane_center("left")
+            #     t2.lane_center("middle")
+            #     t3.lane_center("right")
+            #
+            #     ghost = False
+            #     ghost_uses = 1
+            #     ghost_activated = False
+            #     collisions = 0
+            #     points = 0
+            #     time_elapsed = 0
+            #     current_time = 0
+            #     time_remaining = 3
+            #     collided_car = "none"
+            #     other_cars = [t, t2, t3]
+            #     start_time = 0
+            #     total_pause_time = 0
+            #     milestone = 10
+            #     pause_time = -1
+            #     total_time = 0
+            #     time_at_unpause = 0
+            #     milestone_reached = False
+            #     show_pause = False
+            #     show_tut = True
+            #
+            #     hs = Highscore(points)
+            #     hs_set = hs.high_score_set
+            #
+            #     milestone_message = round((milestone - 10) / 10)
+            #     time_until_pause = round(pause_time - time_elapsed)
+            #     pause_message = "Pausing in... " + str(time_until_pause)
+            #     high_score_message = str(hs.high_score)
+            #
+            #     game_running = False
+            #     game_paused = False
+            #     exploded = False
 
     # Game Over
     if exploded:
         # Shows the fireball
-        if c.y - collided_car.y < 0:
+        if c.y - c.collided_car.y < 0:
             ex.move(c.x - 80, c.y + 10)
-        if c.y - collided_car.y > 0:
+        if c.y - c.collided_car.y > 0:
             ex.move(c.x - 80, c.y - 80)
-        if c.y - collided_car.y == 0:
+        if c.y - c.collided_car.y == 0:
             ex.move(c.x - 80, c.y - 40)
 
         # High Score
-        hs = Highscore(points)
+        hs = Highscore(c.points)
         hs.check_for_hs()
         hs_broken = hs.new_high_score
 
@@ -335,6 +355,9 @@ while run:
     screen.blit(t.image, t.rect)
     screen.blit(t2.image, t2.rect)
     screen.blit(t3.image, t3.rect)
+    screen.blit(traffic_test.image, traffic_test.rect)
+    screen.blit(traffic_test2.image, traffic_test2.rect)
+    screen.blit(traffic_test3.image, traffic_test3.rect)
     screen.blit(g.image, g.rect)
     screen.blit(h.image, h.rect)
     screen.blit(c.image, c.rect)
