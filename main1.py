@@ -1,16 +1,13 @@
 import pygame
 import time
 from car import Car
-from traffic import Traffic
-from traffic2 import Traffic2
-from traffic3 import Traffic3
 from background import Background
 from explosion import Explosion
 from ghost import Ghost
 from hourglass import Hourglass
 from high_scores_test import Highscore
 from menu import Menu
-from traffic_test import Test
+from traffic import Traffic
 
 pygame.init()
 pygame.font.init()
@@ -26,9 +23,6 @@ size = (SCREEN_WIDTH, SCREEN_HEIGHT)
 screen = pygame.display.set_mode(size)
 
 c = Car(535, 500)
-t = Traffic(0, -1040)
-t2 = Traffic2(0, -360)
-t3 = Traffic3(0, -720)
 bg = Background(280, -360)
 ex = Explosion(-1000, 0)
 menu = Menu()
@@ -37,15 +31,20 @@ h = Hourglass()
 
 # Sprite Groups Test
 traffic_group = pygame.sprite.Group()
-traffic_test = Test(0, -1040)
-traffic_group.add(traffic_test)
-traffic_test2 = Test(0, -360)
-traffic_group.add(traffic_test2)
-traffic_test3 = Test(0, -720)
-traffic_group.add(traffic_test3)
-traffic_test.lane_center("left")
-traffic_test2.lane_center("middle")
-traffic_test3.lane_center("right")
+
+t1 = Traffic(0, -1040)
+traffic_group.add(t1)
+
+t2 = Traffic(0, -360)
+traffic_group.add(t2)
+
+t3 = Traffic(0, -720)
+traffic_group.add(t3)
+
+t1.lane_center("left")
+t2.lane_center("middle")
+t3.lane_center("right")
+#
 
 
 exploded = False
@@ -54,7 +53,7 @@ time_elapsed = 0
 current_time = 0
 time_remaining = 3
 # other_cars = [t, t2, t3]
-other_cars = [traffic_test, traffic_test2, traffic_test3]
+other_cars = [t1, t2, t3]
 start_time = 0
 total_pause_time = 0
 pause_time = -1
@@ -82,10 +81,10 @@ display_high_score = my_font.render(high_score_message, True, (255, 255, 255))
 display_hide_controls = my_font.render(hide_controls_message, True, (255, 255, 255))
 display_credits = my_font.render(credit_message, True, (255, 255, 255))
 
-# Function to center traffic and powerups on a lane
-# t.lane_center("left")
-# t2.lane_center("middle")
-# t3.lane_center("right")
+# Function to randomize & centers traffic and powerups on a lane
+t1.randomize_car("left")
+t2.randomize_car("middle")
+t3.randomize_car("right")
 g.update_lane()
 h.update_lane()
 
@@ -145,23 +144,19 @@ while run:
             # Point System
             for car in other_cars:
                 if car.detect_off_screen():
-                    traffic_test.lane_center("left")
-                    traffic_test2.lane_center("middle")
-                    traffic_test3.lane_center("right")
-                    # t.lane_center("left")
-                    # t2.lane_center("middle")
-                    # t3.lane_center("right")
                     c.points = c.points + 10
             display_points = my_font.render(str(c.points), True, (255, 255, 255))
 
+            # Traffic Randomizer
+            t1.randomize_car("left")
+            t2.randomize_car("middle")
+            t3.randomize_car("right")
+
             # Traffic Movement
             if not exploded:
-                traffic_test.traffic_movement()
-                traffic_test2.traffic_movement()
-                traffic_test3.traffic_movement()
-                # t.traffic_movement()
-                # t2.traffic_movement()
-                # t3.traffic_movement()
+                t1.traffic_movement()
+                t2.traffic_movement()
+                t3.traffic_movement()
                 bg.down_scroll()
 
             # Power-ups
@@ -178,30 +173,23 @@ while run:
 
             if h.obtained:
                 h.activated = True
-                h.duration = time_elapsed + 5
-                h.traffic1_delta = t.delta
+                h.duration = time_elapsed + 3
+                h.traffic1_delta = t1.delta
                 h.traffic2_delta = t2.delta
                 h.traffic3_delta = t3.delta
-                h.bg_delta = bg.delta
                 h.obtained = False
 
             if h.activated:
-                traffic_test.delta = 1
-                traffic_test2.delta = 1
-                traffic_test3.delta = 1
-                # t.delta = 1
-                # t2.delta = 1
-                # t3.delta = 1
+                t1.delta = 1
+                t2.delta = 1
+                t3.delta = 1
                 bg.delta = 1
 
             if time_elapsed == h.duration:
-                traffic_test.delta = h.traffic1_delta
-                traffic_test2.delta = h.traffic2_delta
-                traffic_test3.delta = h.traffic3_delta
-                # t.delta = h.traffic1_delta
-                # t2.delta = h.traffic2_delta
-                # t3.delta = h.traffic3_delta
-                bg.delta = h.bg_delta
+                t1.delta = h.traffic1_delta
+                t2.delta = h.traffic2_delta
+                t3.delta = h.traffic3_delta
+                bg.delta = 3
                 h.activated = False
 
             # Ghost Mode & Collisions
@@ -352,12 +340,9 @@ while run:
     if show_pause:
         screen.blit(display_pause_time, (500, 10))
 
-    screen.blit(t.image, t.rect)
+    screen.blit(t1.image, t1.rect)
     screen.blit(t2.image, t2.rect)
     screen.blit(t3.image, t3.rect)
-    screen.blit(traffic_test.image, traffic_test.rect)
-    screen.blit(traffic_test2.image, traffic_test2.rect)
-    screen.blit(traffic_test3.image, traffic_test3.rect)
     screen.blit(g.image, g.rect)
     screen.blit(h.image, h.rect)
     screen.blit(c.image, c.rect)
