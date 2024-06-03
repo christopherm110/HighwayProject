@@ -47,7 +47,6 @@ t3.lane_center("right")
 #
 
 
-exploded = False
 game_running = False
 time_elapsed = 0
 current_time = 0
@@ -103,10 +102,10 @@ while run:
 
     # Vertical Movement
     if not game_paused:
-        if keys[pygame.K_w] and not exploded:
+        if keys[pygame.K_w] and not c.exploded:
             c.y_vel = c.y_vel + 2
             c.move_direction("up")
-        if keys[pygame.K_s] and not exploded:
+        if keys[pygame.K_s] and not c.exploded:
             c.y_vel = c.y_vel + 2
             c.move_direction("down")
 
@@ -153,11 +152,12 @@ while run:
             t3.randomize_car("right")
 
             # Traffic Movement
-            if not exploded:
+            if not c.exploded:
                 t1.traffic_movement()
                 t2.traffic_movement()
                 t3.traffic_movement()
-                bg.down_scroll()
+                if menu.bg_scroll_enabled:
+                    bg.down_scroll()
 
             # Power-ups
             power_ups = [h, g]
@@ -171,37 +171,28 @@ while run:
                 if power_up.spawned:
                     power_up.movement()
 
+            # Hourglass Powerup
             if h.obtained:
-                h.activated = True
-                h.duration = time_elapsed + 3
-                h.traffic1_delta = t1.delta
-                h.traffic2_delta = t2.delta
-                h.traffic3_delta = t3.delta
+                h.remaining_uses = g.remaining_uses + 1
                 h.obtained = False
 
-            if h.activated:
+            if h.enabled:
                 t1.delta = 1
                 t2.delta = 1
                 t3.delta = 1
                 bg.delta = 1
 
             if time_elapsed == h.duration:
-                t1.delta = h.traffic1_delta
-                t2.delta = h.traffic2_delta
-                t3.delta = h.traffic3_delta
-                bg.delta = 3
-                h.activated = False
+                t1.delta = h.temp_delta1
+                t2.delta = h.temp_delta2
+                t3.delta = h.temp_delta4
+                bg.delta = 2
+                h.enabled = False
 
-            # Ghost Mode & Collisions
+            # Ghost Mode Powerup
             if g.obtained:
                 g.remaining_uses = g.remaining_uses + 1
                 g.obtained = False
-
-            if g.activated:
-                g.remaining_uses = g.remaining_uses - 1
-                g.enabled = True
-                g.duration = time_elapsed + 3
-                g.activated = False
 
             if g.remaining_uses < 0:
                 g.remaining_uses = 0
@@ -213,22 +204,16 @@ while run:
                 # Collisions
                 for car in other_cars:
                     if pygame.Rect.colliderect(c.rect, car.rect):
-                        c.collided_car = car
-                        c.collisions = c.collisions + 1
-                        if g.remaining_uses >= 1:
-                            g.activated = True
-                        if g.remaining_uses == 0:
-                            exploded = True
-                            game_running = False
+                        c.exploded = True
 
             if time_elapsed == g.duration:
                 g.enabled = False
 
             # Vertical Player Movement
-            if keys[pygame.K_w] and not exploded:
+            if keys[pygame.K_w] and not c.exploded:
                 c.y_vel = c.y_vel + 2
                 c.move_direction("up")
-            if keys[pygame.K_s] and not exploded:
+            if keys[pygame.K_s] and not c.exploded:
                 c.y_vel = c.y_vel + 2
                 c.move_direction("down")
 
@@ -238,7 +223,8 @@ while run:
 
         # Horizontal Player Movement
         if event.type == pygame.KEYDOWN:
-            if not exploded:
+            if not c.exploded:
+                # H Key
                 if event.key == 104:
                     show_tut = not show_tut
                 if not game_paused:
@@ -248,6 +234,19 @@ while run:
                     # D key
                     if event.key == 100:
                         c.move_direction("right")
+                # Q Key
+                if event.key == 113 and g.remaining_uses > 0:
+                    g.remaining_uses = g.remaining_uses - 1
+                    g.duration = time_elapsed + 3
+                    g.enabled = True
+                # E Key
+                if event.key == 101:
+                    h.duration = time_elapsed + 3
+                    h.temp_delta1 = t1.delta
+                    h.temp_delta2 = t2.delta
+                    h.temp_delta4 = t3.delta
+                    h.enabled = True
+
                 # Space bar
                 if event.key == 32 and not game_running:
                     start_time = time.time()
@@ -259,60 +258,16 @@ while run:
                         show_pause = True
                     if game_paused:
                         game_paused = False
+        if event.type == pygame.MOUSEBUTTONUP:
+            if menu.bg_button_rect.collidepoint(event.pos):
+                menu.disable_bg_scroll()
 
             # Game Restart
             # if exploded and event.key == 32:
-            #     c = Car(535, 500)
-            #     t = Traffic(0, -1040)
-            #     t2 = Traffic2(0, -360)
-            #     t3 = Traffic3(0, -720)
-            #     bg = Background(280, -360)
-            #     ex = Explosion(-1000, 0)
-            #
-            #     t.lane_center("left")
-            #     t2.lane_center("middle")
-            #     t3.lane_center("right")
-            #
-            #     ghost = False
-            #     ghost_uses = 1
-            #     ghost_activated = False
-            #     collisions = 0
-            #     points = 0
-            #     time_elapsed = 0
-            #     current_time = 0
-            #     time_remaining = 3
-            #     collided_car = "none"
-            #     other_cars = [t, t2, t3]
-            #     start_time = 0
-            #     total_pause_time = 0
-            #     milestone = 10
-            #     pause_time = -1
-            #     total_time = 0
-            #     time_at_unpause = 0
-            #     milestone_reached = False
-            #     show_pause = False
-            #     show_tut = True
-            #
-            #     hs = Highscore(points)
-            #     hs_set = hs.high_score_set
-            #
-            #     milestone_message = round((milestone - 10) / 10)
-            #     time_until_pause = round(pause_time - time_elapsed)
-            #     pause_message = "Pausing in... " + str(time_until_pause)
-            #     high_score_message = str(hs.high_score)
-            #
-            #     game_running = False
-            #     game_paused = False
-            #     exploded = False
 
     # Game Over
-    if exploded:
         # Shows the fireball
-        if c.y - c.collided_car.y < 0:
-            ex.move(c.x - 80, c.y + 10)
-        if c.y - c.collided_car.y > 0:
-            ex.move(c.x - 80, c.y - 80)
-        if c.y - c.collided_car.y == 0:
+        if c.exploded:
             ex.move(c.x - 80, c.y - 40)
 
         # High Score
@@ -337,6 +292,16 @@ while run:
 
     if time_until_pause == 0:
         show_pause = False
+
+        screen.blit(menu.return_to_menu, menu.return_to_menu_rect)
+        screen.blit(menu.bg_button, menu.bg_button_rect)
+        screen.blit(menu.bg_scroll, menu.bg_scroll_rect)
+
+    screen.blit(menu.hourglass_icon, menu.hourglass_icon_rect)
+    screen.blit(menu.ghost_icon, menu.ghost_icon_rect)
+    screen.blit(menu.e_button, menu.e_button_rect)
+    screen.blit(menu.q_button, menu.q_button_rect)
+
     if show_pause:
         screen.blit(display_pause_time, (500, 10))
 

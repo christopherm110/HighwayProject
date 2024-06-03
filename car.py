@@ -10,12 +10,10 @@ class Car:
         self.image_size = self.image.get_size()
         self.rect = pygame.Rect(self.x, self.y, self.image_size[0], self.image_size[1])
         self.points = 0
-        self.collisions = 0
         self.milestone = 10
         self.y_vel = 2
         self.exploded = False
         self.milestone_reached = False
-        self.collided_car = "None"
         self.lane = "middle"
 
     def move_direction(self, direction):

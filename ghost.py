@@ -10,7 +10,6 @@ class Ghost:
         self.lane_rng = random.randint(1, 3)
         self.spawn_time = random.randint(5, 30)
         self.enabled = False
-        self.activated = False
         self.obtained = False
         self.spawned = False
         self.delta = 3
