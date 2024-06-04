@@ -6,7 +6,7 @@ class Menu:
     def __init__(self):
 
         # Controls
-
+        self.show_tutorial = True
         self.controls = pygame.image.load("controls.png")
         self.controls_size = self.controls.get_size()
         self.controls_rect = pygame.Rect(90, 180, self.controls_size[0], self.controls_size[1])
@@ -18,12 +18,12 @@ class Menu:
 
         # Pause Menu
 
-        # Background Scroll Button
+        # Background Scroll
         self.bg_scroll = pygame.image.load("background_scroll.png")
         self.bg_scroll_size = self.bg_scroll.get_size()
         self.bg_scroll_rect = pygame.Rect(800, 180, self.bg_scroll_size[0], self.bg_scroll_size[1])
 
-        # Enabled Button
+        # Background Scroll On/Off Button
         self.bg_scroll_enabled = True
 
         self.bg_button = pygame.image.load("enabled.png")
@@ -33,7 +33,7 @@ class Menu:
         # Return to Title Screen
         self.return_to_menu = pygame.image.load("return_to_menu.png")
         self.return_to_menu_size = self.return_to_menu.get_size()
-        self.return_to_menu_rect = pygame.Rect(800, 328, self.return_to_menu_size[0], self.return_to_menu_size[1])
+        self.return_to_menu_rect = pygame.Rect(800, 402, self.return_to_menu_size[0], self.return_to_menu_size[1])
 
         # Arrow Button
         self.arrow_left = pygame.image.load("arrow.png")
@@ -65,6 +65,13 @@ class Menu:
         self.q_button_size = self.q_button.get_size()
         self.q_button_rect = pygame.Rect(838, 22, self.q_button_size[0], self.q_button_size[1])
 
+        # Restart Button
+        self.game_restart = False
+
+        self.restart_img = pygame.image.load("restart.png")
+        self.restart_size = self.restart_img.get_size()
+        self.restart_rect = pygame.Rect(800, 328, self.restart_size[0], self.restart_size[1])
+
     def disable_bg_scroll(self):
         self.bg_scroll_enabled = not self.bg_scroll_enabled
 
@@ -75,3 +82,14 @@ class Menu:
 
         self.bg_button_size = self.bg_button.get_size()
         self.bg_button_rect = pygame.Rect(900, 254, self.bg_button_size[0], self.bg_button_size[1])
+
+    def restart(self):
+        self.show_tutorial = True
+
+        self.bg_scroll_enabled = True
+
+        self.bg_button = pygame.image.load("enabled.png")
+        self.bg_button_size = self.bg_button.get_size()
+        self.bg_button_rect = pygame.Rect(900, 254, self.bg_button_size[0], self.bg_button_size[1])
+
+        self.game_restart = False

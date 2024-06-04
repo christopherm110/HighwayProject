@@ -6,7 +6,7 @@ class Ghost:
 
     def __init__(self):
         self.x = 535
-        self.y = -34
+        self.y = -100
         self.lane_rng = random.randint(1, 3)
         self.spawn_time = random.randint(5, 30)
         self.enabled = False
@@ -14,7 +14,7 @@ class Ghost:
         self.spawned = False
         self.delta = 3
         self.duration = -1
-        self.remaining_uses = 1
+        self.remaining_uses = 0
         self.image = pygame.image.load("ghost.png")
         self.image_size = self.image.get_size()
         self.rect = pygame.Rect(self.x, self.y, self.image_size[0], self.image_size[1])
@@ -45,3 +45,18 @@ class Ghost:
             self.x = 540
         if self.lane_rng == 3:
             self.x = 635
+
+    def restart(self):
+        self.x = 535
+        self.y = -34
+        self.lane_rng = random.randint(1, 3)
+        self.spawn_time = random.randint(5, 30)
+        self.enabled = False
+        self.obtained = False
+        self.spawned = False
+        self.delta = 3
+        self.duration = -1
+        self.remaining_uses = 0
+        self.image = pygame.image.load("ghost.png")
+        self.image_size = self.image.get_size()
+        self.rect = pygame.Rect(self.x, self.y, self.image_size[0], self.image_size[1])
