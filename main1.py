@@ -159,15 +159,22 @@ while run:
                     power_up.check_collisions(c)
                     if time_elapsed == power_up.spawn_time:
                         power_up.spawned = True
-                        power_up.new_spawn_time(time_elapsed)
+                        if power_up.remaining_uses == 0:
+                            power_up.new_spawn_time(time_elapsed)
 
                     if power_up.spawned:
                         power_up.movement()
+
+                    if time_elapsed == power_up.duration:
+                        power_up.new_spawn_time(time_elapsed)
 
                 # Hourglass Powerup
                 if h.obtained:
                     h.remaining_uses = g.remaining_uses + 1
                     h.obtained = False
+
+                if h.remaining_uses > 1:
+                    h.remaining_uses = 1
 
                 if h.enabled:
                     pygame.Surface.set_alpha(menu.hourglass_icon, 255)
@@ -191,8 +198,8 @@ while run:
                     g.remaining_uses = g.remaining_uses + 1
                     g.obtained = False
 
-                if g.remaining_uses < 0:
-                    g.remaining_uses = 0
+                if g.remaining_uses > 1:
+                    g.remaining_uses = 1
 
                 if g.enabled:
                     pygame.Surface.set_alpha(c.image, 75)
@@ -224,7 +231,6 @@ while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
-
         # Horizontal Player Movement
         if event.type == pygame.KEYDOWN:
             if not c.exploded:
@@ -312,13 +318,17 @@ while run:
             game_paused = False
             show_pause = False
 
-        if event.type == pygame.MOUSEBUTTONUP:
+        if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
             # Disables background scroll
             if menu.bg_button_rect.collidepoint(event.pos):
                 menu.disable_bg_scroll()
             # Restarts the game at any time
             if menu.restart_rect.collidepoint(event.pos):
                 menu.game_restart = True
+            if menu.arrow_left_rect.collidepoint(event.pos) and menu.index > 0:
+                menu.select_car("left")
+            if menu.arrow_right_rect.collidepoint(event.pos) and menu.index < 4:
+                menu.select_car("right")
 
     # Game Over
     if c.exploded:
@@ -353,6 +363,11 @@ while run:
         screen.blit(menu.bg_button, menu.bg_button_rect)
         screen.blit(menu.bg_scroll, menu.bg_scroll_rect)
         screen.blit(menu.restart_img, menu.restart_rect)
+
+    screen.blit(menu.garage, menu.garage_rect)
+    screen.blit(menu.arrow_right, menu.arrow_right_rect)
+    screen.blit(menu.arrow_left, menu.arrow_left_rect)
+    screen.blit(menu.chosen_car, menu.chosen_car_rect)
 
     if h.remaining_uses > 0 or h.enabled:
         screen.blit(menu.hourglass_icon, menu.hourglass_icon_rect)

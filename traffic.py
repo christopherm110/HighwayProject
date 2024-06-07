@@ -23,7 +23,7 @@ class Traffic(pygame.sprite.Sprite):
 
     def traffic_movement(self):
         self.move_direction("down")
-        if self.y > 720:
+        if self.y > 730:
             self.y = random.randint(-1000, -128)
             random_speed = random.randint(-5, 5)
             speed = random_speed / 10

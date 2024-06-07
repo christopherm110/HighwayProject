@@ -38,11 +38,11 @@ class Menu:
         # Arrow Button
         self.arrow_left = pygame.image.load("arrow.png")
         self.arrow_left_size = self.arrow_left.get_size()
-        self.arrow_left_rect = pygame.Rect(800, 370, self.arrow_left_size[0], self.arrow_left_size[1])
+        self.arrow_left_rect = pygame.Rect(780, 328, self.arrow_left_size[0], self.arrow_left_size[1])
 
         self.arrow_right = pygame.image.load("arrow.png")
         self.arrow_right_size = self.arrow_right.get_size()
-        self.arrow_right_rect = pygame.Rect(800, 444, self.arrow_right_size[0], self.arrow_right_size[1])
+        self.arrow_right_rect = pygame.Rect(1003, 328, self.arrow_right_size[0], self.arrow_right_size[1])
         self.arrow_right = pygame.transform.flip(self.arrow_right, True, False)
 
         # Ghost Mode
@@ -72,6 +72,23 @@ class Menu:
         self.restart_size = self.restart_img.get_size()
         self.restart_rect = pygame.Rect(800, 328, self.restart_size[0], self.restart_size[1])
 
+        # Garage Menu Placeholder
+        self.open_garage = False
+        self.garage = pygame.image.load("menu_temp.png")
+        self.garage_size = self.garage.get_size()
+        scale_size = (self.garage_size[0] * 3, self.garage_size[1] * 3)
+        self.garage = pygame.transform.scale(self.garage, scale_size)
+        self.garage_size = self.garage.get_size()
+        self.garage_rect = pygame.Rect(780, 328, self.garage_size[0], self.garage_size[1])
+
+        self.car_options = ["blue_car.png", "yellow_coupe.png", "white_cargo_truck.png", "gray_van.png", "green_truck"
+                                                                                                            ".png"]
+        self.index = 0
+        self.choice = self.car_options[self.index]
+        self.chosen_car = pygame.image.load(self.choice)
+        self.chosen_car_size = self.chosen_car.get_size()
+        self.chosen_car_rect = pygame.Rect(892, 420, self.chosen_car_size[0], self.chosen_car_size[1])
+
     def disable_bg_scroll(self):
         self.bg_scroll_enabled = not self.bg_scroll_enabled
 
@@ -82,6 +99,16 @@ class Menu:
 
         self.bg_button_size = self.bg_button.get_size()
         self.bg_button_rect = pygame.Rect(900, 254, self.bg_button_size[0], self.bg_button_size[1])
+
+    def select_car(self, direction):
+        if direction == "left":
+            self.index = self.index - 1
+        if direction == "right":
+            self.index = self.index + 1
+        self.choice = self.car_options[self.index]
+        self.chosen_car = pygame.image.load(self.choice)
+        self.chosen_car_size = self.chosen_car.get_size()
+        self.chosen_car_rect = pygame.Rect(892, 420, self.chosen_car_size[0], self.chosen_car_size[1])
 
     def restart(self):
         self.show_tutorial = True
