@@ -15,7 +15,7 @@ class Ghost:
         self.delta = 3
         self.duration = -1
         self.remaining_uses = 0
-        self.image = pygame.image.load("ghost.png")
+        self.image = pygame.image.load("Assets/ghost.png")
         self.image_size = self.image.get_size()
         self.rect = pygame.Rect(self.x, self.y, self.image_size[0], self.image_size[1])
 
@@ -57,6 +57,6 @@ class Ghost:
         self.delta = 3
         self.duration = -1
         self.remaining_uses = 0
-        self.image = pygame.image.load("ghost.png")
+        self.image = pygame.image.load("Assets/ghost.png")
         self.image_size = self.image.get_size()
         self.rect = pygame.Rect(self.x, self.y, self.image_size[0], self.image_size[1])

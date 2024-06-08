@@ -10,7 +10,7 @@ class Traffic(pygame.sprite.Sprite):
         self.lane = lane
         self.delta = 2.75
         self.points_given = False
-        self.image = pygame.image.load("blue_car.png")
+        self.image = pygame.image.load("Assets/blue_car.png")
         self.image_size = self.image.get_size()
         self.rect = pygame.Rect(self.x, self.y, self.image_size[0], self.image_size[1])
 
@@ -46,7 +46,7 @@ class Traffic(pygame.sprite.Sprite):
         rng = random.randint(1, 75)
         # Blue Car
         if rng <= 20:
-            self.image = pygame.image.load("blue_car.png")
+            self.image = pygame.image.load("Assets/blue_car.png")
             if self.lane == "left":
                 self.x = 430
             if self.lane == "middle":
@@ -55,7 +55,7 @@ class Traffic(pygame.sprite.Sprite):
                 self.x = 620
         # Gray Van
         if 20 < rng <= 30:
-            self.image = pygame.image.load("gray_van.png")
+            self.image = pygame.image.load("Assets/gray_van.png")
             if self.lane == "left":
                 self.x = 425
             if self.lane == "middle":
@@ -64,7 +64,7 @@ class Traffic(pygame.sprite.Sprite):
                 self.x = 616
         # Green Truck
         if 30 < rng <= 45:
-            self.image = pygame.image.load("green_truck.png")
+            self.image = pygame.image.load("Assets/green_truck.png")
             if self.lane == "left":
                 self.x = 424
             if self.lane == "middle":
@@ -73,7 +73,7 @@ class Traffic(pygame.sprite.Sprite):
                 self.x = 615
         # White Cargo Truck
         if 45 < rng <= 55:
-            self.image = pygame.image.load("white_cargo_truck.png")
+            self.image = pygame.image.load("Assets/white_cargo_truck.png")
             if self.lane == "left":
                 self.x = 427
             if self.lane == "middle":
@@ -82,7 +82,7 @@ class Traffic(pygame.sprite.Sprite):
                 self.x = 618
         # Yellow Coupe
         if 55 < rng <= 75:
-            self.image = pygame.image.load("yellow_coupe.png")
+            self.image = pygame.image.load("Assets/yellow_coupe.png")
             if self.lane == "left":
                 self.x = 430
             if self.lane == "middle":
@@ -99,6 +99,6 @@ class Traffic(pygame.sprite.Sprite):
         self.lane = lane
         self.delta = 2.75
         self.points_given = False
-        self.image = pygame.image.load("blue_car.png")
+        self.image = pygame.image.load("Assets/blue_car.png")
         self.image_size = self.image.get_size()
         self.rect = pygame.Rect(self.x, self.y, self.image_size[0], self.image_size[1])

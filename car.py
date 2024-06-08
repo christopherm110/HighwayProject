@@ -6,7 +6,7 @@ class Car:
     def __init__(self):
         self.x = 535
         self.y = 500
-        self.image = pygame.image.load("f1.png")
+        self.image = pygame.image.load("Assets/f1.png")
         self.image_size = self.image.get_size()
         self.rect = pygame.Rect(self.x, self.y, self.image_size[0], self.image_size[1])
         self.lives = 1
@@ -54,7 +54,7 @@ class Car:
     def restart(self):
         self.x = 535
         self.y = 500
-        self.image = pygame.image.load("f1.png")
+        self.image = pygame.image.load("Assets/f1.png")
         self.image_size = self.image.get_size()
         self.rect = pygame.Rect(self.x, self.y, self.image_size[0], self.image_size[1])
         self.lives = 1
