@@ -13,6 +13,7 @@ from traffic import Traffic
 pygame.init()
 pygame.font.init()
 my_font = pygame.font.SysFont('Bahnschrift', 20)
+pause_font = pygame.font.SysFont('Bahnschrift', 27)
 pygame.display.set_caption("Final Project Demo")
 clock = pygame.time.Clock()
 
@@ -60,10 +61,10 @@ pause_time = -1
 total_time = 0
 time_at_unpause = 0
 
-# Messagesd
+# Messages
 milestone_message = round((c.milestone - 10) / 10)
 time_until_pause = round(pause_time - time_elapsed)
-pause_message = "Pausing in... " + str(time_until_pause)
+pause_message = str(time_until_pause)
 high_score_message = str(hs.high_score)
 hide_controls_message = "Press 'H' to hide controls"
 credit_message = "Art, coding, by Christopher Meregildo"
@@ -71,7 +72,7 @@ credit_message = "Art, coding, by Christopher Meregildo"
 display_points = my_font.render(str(c.points), True, (255, 255, 255))
 display_time = my_font.render(str(time_elapsed) + "s", True, (255, 255, 255))
 display_milestone = my_font.render(str(milestone_message), True, (255, 255, 255))
-display_pause_time = my_font.render(pause_message, True, (255, 255, 255))
+display_pause_time = pause_font.render(pause_message, True, (255, 255, 255))
 display_high_score = my_font.render(high_score_message, True, (255, 255, 255))
 display_hide_controls = my_font.render(hide_controls_message, True, (255, 255, 255))
 display_credits = my_font.render(credit_message, True, (255, 255, 255))
@@ -85,15 +86,14 @@ h.update_lane()
 
 game_running = False
 game_paused = False
-show_pause = False
 run = True
 
 while run:
 
     # Updates Messages
     time_until_pause = round(pause_time - time_elapsed)
-    pause_message = "Pausing in... " + str(time_until_pause)
-    display_pause_time = my_font.render(pause_message, True, (255, 255, 255))
+    pause_message = str(time_until_pause)
+    display_pause_time = pause_font.render(pause_message, True, (255, 255, 255))
     display_high_score = my_font.render(high_score_message, True, (255, 255, 255))
 
     # Key Inputs
@@ -229,27 +229,33 @@ while run:
                     c.lost_life = False
 
     for event in pygame.event.get():
+
         if event.type == pygame.QUIT:
             run = False
-        # Horizontal Player Movement
+
         if event.type == pygame.KEYDOWN:
             if not c.exploded:
                 # H Key
                 if event.key == 104:
                     menu.show_tutorial = not menu.show_tutorial
+
+                # Horizontal Player Movement
                 if not game_paused:
                     # A key
                     if event.key == 97:
                         c.move_direction("left")
+
                     # D key
                     if event.key == 100:
                         c.move_direction("right")
-                # Q Key
+
+                # Q Key, activates ghost
                 if event.key == 113 and g.remaining_uses > 0:
                     g.remaining_uses = g.remaining_uses - 1
                     g.duration = time_elapsed + 3
                     g.enabled = True
-                # E Key
+
+                # E Key, activates hourglass
                 if event.key == 101 and h.remaining_uses > 0:
                     h.remaining_uses = h.remaining_uses - 1
                     h.duration = time_elapsed + 3
@@ -258,21 +264,26 @@ while run:
                     h.temp_delta4 = t3.delta
                     h.enabled = True
 
-                # Space bar
+                # Space bar, starts game
                 if event.key == 32 and not game_running:
                     start_time = time.time()
                     game_running = True
-                # Esc key
-                if event.key == 27 and game_running and not show_pause:
+                    menu.game_started = True
+
+                # Esc key, pauses game
+                if event.key == 27 and game_running and not menu.show_pause:
                     if not game_paused:
                         pause_time = time_elapsed + 3
-                        show_pause = True
+                        menu.show_pause = True
                     if game_paused:
                         game_paused = False
-            # Game Restart
+
+            # Initiates Game Restart
             if c.exploded and event.key == 32:
                 menu.game_restart = True
+                menu.game_started = False
 
+        # Game Restart
         if menu.game_restart:
             for obj in classes:
                 obj.restart()
@@ -298,13 +309,13 @@ while run:
             # Messages
             milestone_message = round((c.milestone - 10) / 10)
             time_until_pause = round(pause_time - time_elapsed)
-            pause_message = "Pausing in... " + str(time_until_pause)
+            pause_message = str(time_until_pause)
             high_score_message = str(hs.high_score)
 
             display_points = my_font.render(str(c.points), True, (255, 255, 255))
             display_time = my_font.render(str(time_elapsed) + "s", True, (255, 255, 255))
             display_milestone = my_font.render(str(milestone_message), True, (255, 255, 255))
-            display_pause_time = my_font.render(pause_message, True, (255, 255, 255))
+            display_pause_time = pause_font.render(pause_message, True, (255, 255, 255))
             display_high_score = my_font.render(high_score_message, True, (255, 255, 255))
 
             # Function to randomize & centers traffic and powerups on a lane
@@ -316,9 +327,8 @@ while run:
 
             game_running = False
             game_paused = False
-            show_pause = False
 
-        if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+        if event.type == pygame.MOUSEBUTTONUP and event.button == 1 and game_paused:
             # Disables background scroll
             if menu.bg_button_rect.collidepoint(event.pos):
                 menu.disable_bg_scroll()
@@ -357,17 +367,17 @@ while run:
     screen.blit(display_high_score, (196, 111))
 
     if time_until_pause == 0:
-        show_pause = False
+        menu.show_pause = False
 
         screen.blit(menu.return_to_menu, menu.return_to_menu_rect)
         screen.blit(menu.bg_button, menu.bg_button_rect)
         screen.blit(menu.bg_scroll, menu.bg_scroll_rect)
         screen.blit(menu.restart_img, menu.restart_rect)
 
-    screen.blit(menu.garage, menu.garage_rect)
-    screen.blit(menu.arrow_right, menu.arrow_right_rect)
-    screen.blit(menu.arrow_left, menu.arrow_left_rect)
-    screen.blit(menu.chosen_car, menu.chosen_car_rect)
+    # screen.blit(menu.garage, menu.garage_rect)
+    # screen.blit(menu.arrow_right, menu.arrow_right_rect)
+    # screen.blit(menu.arrow_left, menu.arrow_left_rect)
+    # screen.blit(menu.chosen_car, menu.chosen_car_rect)
 
     if h.remaining_uses > 0 or h.enabled:
         screen.blit(menu.hourglass_icon, menu.hourglass_icon_rect)
@@ -376,9 +386,6 @@ while run:
         screen.blit(menu.ghost_icon, menu.ghost_icon_rect)
         screen.blit(menu.q_button, menu.q_button_rect)
 
-    if show_pause:
-        screen.blit(display_pause_time, (500, 10))
-
     screen.blit(t1.image, t1.rect)
     screen.blit(t2.image, t2.rect)
     screen.blit(t3.image, t3.rect)
@@ -386,6 +393,20 @@ while run:
     screen.blit(h.image, h.rect)
     screen.blit(c.image, c.rect)
     screen.blit(ex.image, ex.rect)
+
+    if menu.show_pause:
+        screen.blit(menu.pausing, menu.pausing_rect)
+        screen.blit(display_pause_time, (655, 24))
+
+    if game_paused:
+        screen.blit(menu.pause_keybind, menu.pause_keybind_rect)
+
+    if c.exploded:
+        screen.blit(menu.restart_keybind, menu.restart_keybind_rect)
+
+    if not menu.game_started:
+        screen.blit(menu.start_keybind, menu.start_keybind_rect)
+
     pygame.display.update()
     clock.tick(fps)
 

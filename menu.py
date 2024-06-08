@@ -72,6 +72,27 @@ class Menu:
         self.restart_size = self.restart_img.get_size()
         self.restart_rect = pygame.Rect(800, 328, self.restart_size[0], self.restart_size[1])
 
+        self.restart_keybind = pygame.image.load("space_to_restart.png")
+        self.restart_keybind_size = self.restart_keybind.get_size()
+        self.restart_keybind_rect = pygame.Rect(432, 646, self.restart_keybind_size[0], self.restart_keybind_size[1])
+
+        # Start Button
+        self.game_started = False
+
+        self.start_keybind = pygame.image.load("space_to_start.png")
+        self.start_keybind_size = self.start_keybind.get_size()
+        self.start_keybind_rect = pygame.Rect(432, 646, self.start_keybind_size[0], self.start_keybind_size[1])
+
+        # Pause Duration
+        self.show_pause = False
+        self.pausing = pygame.image.load("pause_duration.png")
+        self.pausing_size = self.pausing.get_size()
+        self.pausing_rect = pygame.Rect(432, 20, self.pausing_size[0], self.pausing_size[1])
+
+        self.pause_keybind = pygame.image.load("unpause_keybind.png")
+        self.pause_keybind_size = self.pause_keybind.get_size()
+        self.pause_keybind_rect = pygame.Rect(432, 646, self.pause_keybind_size[0], self.pause_keybind_size[1])
+
         # Garage Menu Placeholder
         self.open_garage = False
         self.garage = pygame.image.load("menu_temp.png")
@@ -112,11 +133,11 @@ class Menu:
 
     def restart(self):
         self.show_tutorial = True
-
         self.bg_scroll_enabled = True
-
         self.bg_button = pygame.image.load("enabled.png")
         self.bg_button_size = self.bg_button.get_size()
         self.bg_button_rect = pygame.Rect(900, 254, self.bg_button_size[0], self.bg_button_size[1])
-
         self.game_restart = False
+        self.game_started = False
+        self.show_pause = False
+        self.open_garage = False
