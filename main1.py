@@ -332,7 +332,6 @@ while run:
 
             game_running = False
             game_paused = False
-
         if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
             if not menu.title_screen:
                 # Disables background scroll
@@ -341,20 +340,28 @@ while run:
                 # Restarts the game at any time
                 if menu.restart_rect.collidepoint(event.pos):
                     menu.game_restart = True
-
+                # Returns to title
                 if menu.return_to_menu_rect.collidepoint(event.pos):
                     menu.title_screen = True
-                    menu.open_garage = True
 
-            if menu.arrow_left_rect.collidepoint(event.pos) and menu.index > 0:
-                menu.select_car("left")
+            if menu.title_screen:
+                # Closes title
+                if menu.start_button_rect.collidepoint(event.pos) and not menu.open_garage:
+                    menu.title_screen = False
+                    menu.game_restart = True
 
-            if menu.arrow_right_rect.collidepoint(event.pos) and menu.index < 5:
-                menu.select_car("right")
+                # Opens and closes garage
+                if menu.open_garage_rect.collidepoint(event.pos):
+                    menu.open_garage = not menu.open_garage
+                    c.update_car(menu.choice)
 
-            if menu.start_button_rect.collidepoint(event.pos):
-                menu.title_screen = False
-                menu.game_restart = True
+                if menu.open_garage:
+                    # Alternates between the cars in the garage
+                    if menu.arrow_left_rect.collidepoint(event.pos) and menu.index > 0:
+                        menu.select_car("left")
+
+                    if menu.arrow_right_rect.collidepoint(event.pos) and menu.index < len(menu.car_options) - 1:
+                        menu.select_car("right")
 
     # Game Over
     if c.exploded:
@@ -371,7 +378,6 @@ while run:
     screen.blit(bg.image, bg.rect)
 
     if not menu.title_screen:
-        screen.blit(c.image, c.rect)
         screen.blit(menu.stats, menu.stats_rect)
         screen.blit(display_credits, (2, 699))
         screen.blit(display_points, (149, 9))
@@ -419,7 +425,11 @@ while run:
             screen.blit(menu.start_keybind, menu.start_keybind_rect)
 
     if menu.title_screen:
-        screen.blit(menu.start_button, menu.start_button_rect)
+        screen.blit(menu.title, menu.title_rect)
+        if not menu.open_garage:
+            screen.blit(menu.start_button, menu.start_button_rect)
+
+        screen.blit(menu.open_garage_button, menu.open_garage_rect)
 
         if menu.open_garage:
             screen.blit(menu.garage, menu.garage_rect)

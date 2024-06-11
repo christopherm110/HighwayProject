@@ -39,11 +39,11 @@ class Menu:
         # Arrow Button
         self.arrow_left = pygame.image.load("Assets/arrow.png")
         self.arrow_left_size = self.arrow_left.get_size()
-        self.arrow_left_rect = pygame.Rect(780, 328, self.arrow_left_size[0], self.arrow_left_size[1])
+        self.arrow_left_rect = pygame.Rect(849, 407, self.arrow_left_size[0], self.arrow_left_size[1])
 
         self.arrow_right = pygame.image.load("Assets/arrow.png")
         self.arrow_right_size = self.arrow_right.get_size()
-        self.arrow_right_rect = pygame.Rect(1003, 328, self.arrow_right_size[0], self.arrow_right_size[1])
+        self.arrow_right_rect = pygame.Rect(1019, 407, self.arrow_right_size[0], self.arrow_right_size[1])
         self.arrow_right = pygame.transform.flip(self.arrow_right, True, False)
 
         # Ghost Mode
@@ -94,29 +94,32 @@ class Menu:
         self.pause_keybind_size = self.pause_keybind.get_size()
         self.pause_keybind_rect = pygame.Rect(432, 646, self.pause_keybind_size[0], self.pause_keybind_size[1])
 
-        # Garage Menu Placeholder
-        self.open_garage = False
-        self.garage = pygame.image.load("Assets/menu_temp.png")
+        # Garage Menu
+        self.open_garage = True
+        self.garage = pygame.image.load("Assets/garage.png")
         self.garage_size = self.garage.get_size()
-        scale_size = (self.garage_size[0] * 3, self.garage_size[1] * 3)
-        self.garage = pygame.transform.scale(self.garage, scale_size)
-        self.garage_size = self.garage.get_size()
-        self.garage_rect = pygame.Rect(780, 328, self.garage_size[0], self.garage_size[1])
+        self.garage_rect = pygame.Rect(845, 400, self.garage_size[0], self.garage_size[1])
 
         self.car_options = ["Assets/blue_car.png", "Assets/yellow_coupe.png", "Assets/white_cargo_truck.png", "Assets"
                                                         "/gray_van.png", "Assets/green_truck.png", "Assets/f1.png"]
-        self.index = 0
+        self.index = 5
         self.choice = self.car_options[self.index]
         self.chosen_car = pygame.image.load(self.choice)
         self.chosen_car_size = self.chosen_car.get_size()
-        self.chosen_car_rect = pygame.Rect(892, 420, self.chosen_car_size[0], self.chosen_car_size[1])
+        self.chosen_car_rect = pygame.Rect(907, 465, self.chosen_car_size[0], self.chosen_car_size[1])
 
-        self.start_button = pygame.image.load("Assets/start_button.png")
+        self.open_garage_button = pygame.image.load("Assets/open_garage.png")
+        self.open_garage_size = self.open_garage_button.get_size()
+        self.open_garage_rect = pygame.Rect(540, 485, self.open_garage_size[0], self.open_garage_size[1])
+
+        # Title Screen
+        self.title = pygame.image.load("Assets/title.png")
+        self.title_size = self.title.get_size()
+        self.title_rect = pygame.Rect(0, 0, self.title_size[0], self.title_size[1])
+
+        self.start_button = pygame.image.load("Assets/title_start.png")
         self.start_button_size = self.start_button.get_size()
-        scale_size2 = (self.start_button_size[0] * 0.3, self.start_button_size[1] * 0.3)
-        self.start_button = pygame.transform.scale(self.start_button, scale_size2)
-        self.start_button_size = self.start_button.get_size()
-        self.start_button_rect = pygame.Rect(450, 360, self.start_button_size[0], self.start_button_size[1])
+        self.start_button_rect = pygame.Rect(540, 400, self.start_button_size[0], self.start_button_size[1])
 
     def disable_bg_scroll(self):
         self.bg_scroll_enabled = not self.bg_scroll_enabled
@@ -137,7 +140,7 @@ class Menu:
         self.choice = self.car_options[self.index]
         self.chosen_car = pygame.image.load(self.choice)
         self.chosen_car_size = self.chosen_car.get_size()
-        self.chosen_car_rect = pygame.Rect(892, 420, self.chosen_car_size[0], self.chosen_car_size[1])
+        self.chosen_car_rect = pygame.Rect(907, 465, self.chosen_car_size[0], self.chosen_car_size[1])
 
     def restart(self):
         self.show_tutorial = True
